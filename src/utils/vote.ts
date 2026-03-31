@@ -13,18 +13,6 @@ export function getVoteLabel(value: VoteValue): string {
   return 'Like';
 }
 
-export function getVoteFilter(value: VoteValue): HistoryFilter {
-  if (value === -1) {
-    return 'dislike';
-  }
-
-  if (value === 2) {
-    return 'super-like';
-  }
-
-  return 'like';
-}
-
 export function toVoteValue(filter: HistoryFilter): VoteValue | null {
   if (filter === 'dislike') {
     return -1;

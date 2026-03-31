@@ -7,7 +7,7 @@ const envSchema = z.object({
   VITE_PROGRESS_STORAGE_KEY: z.string().min(1),
 });
 
-export type AppEnv = z.infer<typeof envSchema>;
+type AppEnv = z.infer<typeof envSchema>;
 
 export function parseEnv(rawEnv: Record<string, unknown>): AppEnv {
   return envSchema.parse(rawEnv);
