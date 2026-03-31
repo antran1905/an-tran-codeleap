@@ -79,6 +79,7 @@
 
 ## Naming Conventions
 - **Directories:** Always use `kebab-case` (e.g., `@/components/auth-form`, `@/common/query-keys`).
+- **App Provider Directory:** Keep app-level provider wrappers under `@/provider` (e.g., `@/provider/AppProviders`).
 - **React Components:** Use `PascalCase` for both filename and component name (e.g., `UserCard.tsx`, `SignInButton.tsx`).
 - **Hooks:** Use `camelCase` with `use` prefix (e.g., `useQueryCustom.ts`, `useSwipeMutation.ts`).
 - **Utils/Logic:** Use `camelCase` (e.g., `authService.ts`, `dateTimeUtils.ts`).
