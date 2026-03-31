@@ -5,7 +5,6 @@
 - **Routing:** React Router.
 - **Styling:** Tailwind CSS v4 + shadcn/ui.
 - **State Management:** TanStack Query (Server) + Zustand (Client).
-<!-- - **Forms:** React Hook Form + Zod. -->
 - **Testing:** Vitest + React Testing Library
 
 ## Principles
@@ -69,7 +68,7 @@
 - Never call services directly inside components; always wrap them in custom React Query hooks.
 
 ## Git Commits & Commands
-- Only use `bun run` scripts: `dev`, `build`, `lint`, `check:types`, `test`.
+- Only use `pnpm run` scripts: `dev`, `build`, `lint`, `check:types`, `test`.
 - Conventional Commits: `type: summary` without scope.
 - Summary: Short, specific sentence explaining what changed and why.
 - Types: `feat|fix|docs|style|refactor|perf|test|build|ci|chore|revert`.
