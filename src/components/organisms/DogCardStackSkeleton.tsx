@@ -5,7 +5,7 @@ export function DogCardStackSkeleton() {
     <div
       aria-busy="true"
       aria-label="Loading dog feed"
-      className="relative h-full w-full overflow-hidden touch-none sm:mx-auto sm:h-[74svh] sm:min-h-[20rem] sm:max-h-[34rem] sm:max-w-md"
+      className="relative h-full w-full touch-none overflow-hidden sm:mx-auto sm:h-[74svh] sm:max-h-136 sm:min-h-80 sm:max-w-md"
       role="status"
     >
       <div

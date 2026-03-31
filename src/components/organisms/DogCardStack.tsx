@@ -184,7 +184,12 @@ export function DogCardStack(props: Props) {
   }
 
   function handleCardClick() {
-    if (!canOpenDetails || !props.currentCard || movedRef.current || props.disabled) {
+    if (
+      !canOpenDetails ||
+      !props.currentCard ||
+      movedRef.current ||
+      props.disabled
+    ) {
       return;
     }
 
@@ -233,16 +238,11 @@ export function DogCardStack(props: Props) {
         window.clearTimeout(settleTimer);
       }
     };
-  }, [
-    queuedSwipeValue,
-    currentCard,
-    onSwipe,
-    onQueuedSwipeHandled,
-  ]);
+  }, [queuedSwipeValue, currentCard, onSwipe, onQueuedSwipeHandled]);
 
   if (!props.currentCard) {
     return (
-      <div className="flex h-full min-h-0 items-center justify-center bg-card text-center sm:h-[64svh] sm:min-h-[20rem] sm:max-h-[34rem] sm:rounded-3xl sm:border sm:border-border">
+      <div className="flex h-full min-h-0 items-center justify-center bg-card text-center sm:h-[64svh] sm:max-h-[34rem] sm:min-h-[20rem] sm:rounded-3xl sm:border sm:border-border">
         <p className="text-sm text-muted-foreground">
           No more dogs in this feed.
         </p>
@@ -263,7 +263,7 @@ export function DogCardStack(props: Props) {
   const badgeOpacity = 0.22 + motionIntensity * 0.78;
 
   return (
-    <div className="relative h-full w-full overflow-hidden touch-none sm:mx-auto sm:h-[74svh] sm:min-h-[20rem] sm:max-h-[34rem] sm:max-w-md">
+    <div className="relative h-full w-full touch-none overflow-hidden sm:mx-auto sm:h-[74svh] sm:max-h-[34rem] sm:min-h-[20rem] sm:max-w-md">
       {props.nextCard ? (
         <article
           className="absolute inset-0 bg-muted shadow-lg sm:rounded-3xl sm:border sm:border-border"
@@ -284,7 +284,11 @@ export function DogCardStack(props: Props) {
       <article
         role={canOpenDetails ? "button" : undefined}
         tabIndex={canOpenDetails ? 0 : -1}
-        aria-label={canOpenDetails ? `Open details for ${props.currentCard.breedName}` : undefined}
+        aria-label={
+          canOpenDetails
+            ? `Open details for ${props.currentCard.breedName}`
+            : undefined
+        }
         onClick={handleCardClick}
         onKeyDown={(event) => {
           if (!canOpenDetails) {
@@ -300,7 +304,7 @@ export function DogCardStack(props: Props) {
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerEnd}
         onPointerCancel={handlePointerEnd}
-        className="absolute inset-0 cursor-grab select-none bg-card shadow-2xl active:cursor-grabbing sm:rounded-3xl sm:border sm:border-border"
+        className="absolute inset-0 cursor-grab bg-card shadow-2xl select-none active:cursor-grabbing sm:rounded-3xl sm:border sm:border-border"
         style={{
           transform: `translate(${dragState.x}px, ${dragState.y}px) rotate(${rotation}deg)`,
           transition: dragState.transition,
@@ -316,7 +320,7 @@ export function DogCardStack(props: Props) {
         <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/20 to-background/15 sm:rounded-3xl" />
         {showDislike ? (
           <span
-            className="absolute right-2 top-9 rotate-[20deg] rounded-2xl border-[3px] border-destructive bg-background/75 px-6 py-3 text-lg font-black uppercase tracking-[0.24em] text-destructive shadow-2xl shadow-destructive/35 backdrop-blur-sm sm:right-4 sm:top-10"
+            className="absolute top-9 right-2 rotate-[20deg] rounded-2xl border-[3px] border-destructive bg-background/75 px-6 py-3 text-lg font-black tracking-[0.24em] text-destructive uppercase shadow-2xl shadow-destructive/35 backdrop-blur-sm sm:top-10 sm:right-4"
             style={{ opacity: badgeOpacity }}
           >
             Nope
@@ -324,7 +328,7 @@ export function DogCardStack(props: Props) {
         ) : null}
         {showLove ? (
           <span
-            className="absolute left-2 top-9 -rotate-[20deg] rounded-2xl border-[3px] border-secondary bg-background/75 px-6 py-3 text-lg font-black uppercase tracking-[0.24em] text-secondary shadow-2xl shadow-secondary/35 backdrop-blur-sm sm:left-4 sm:top-10"
+            className="absolute top-9 left-2 rotate-[-20deg] rounded-2xl border-[3px] border-secondary bg-background/75 px-6 py-3 text-lg font-black tracking-[0.24em] text-secondary uppercase shadow-2xl shadow-secondary/35 backdrop-blur-sm sm:top-10 sm:left-4"
             style={{ opacity: badgeOpacity }}
           >
             Love
@@ -332,7 +336,7 @@ export function DogCardStack(props: Props) {
         ) : null}
         {showStar ? (
           <span
-            className="absolute left-1/2 top-5 -translate-x-1/2 rounded-lg border border-primary bg-background/55 px-3 py-1.5 text-sm font-bold uppercase tracking-wider text-primary backdrop-blur-sm"
+            className="absolute top-5 left-1/2 -translate-x-1/2 rounded-lg border border-primary bg-background/55 px-3 py-1.5 text-sm font-bold tracking-wider text-primary uppercase backdrop-blur-sm"
             style={{ opacity: badgeOpacity }}
           >
             Star

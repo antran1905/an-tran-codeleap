@@ -42,12 +42,12 @@ export function DogDetailsPanel(props: DogDetailsPanelProps) {
     <div className="absolute inset-x-0 bottom-0 p-4">
       <div
         key={`metadata-${props.breed.id}`}
-        className="details-metadata-enter border border-border/60 bg-background/55 p-4 shadow-xl backdrop-blur-md rounded-2xl"
+        className="details-metadata-enter rounded-2xl border border-border/60 bg-background/55 p-4 shadow-xl backdrop-blur-md"
       >
         <h1 className="text-2xl font-semibold text-foreground sm:text-3xl">
           {props.breed.name}
         </h1>
-        <p className="mt-1 text-xs uppercase tracking-[0.2em] text-muted-foreground">
+        <p className="mt-1 text-xs tracking-[0.2em] text-muted-foreground uppercase">
           Breed profile
         </p>
         <div className="mt-4 space-y-2.5">
