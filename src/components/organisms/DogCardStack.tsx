@@ -1,0 +1,343 @@
+import { useEffect, useRef, useState } from "react";
+import type * as React from "react";
+
+import { BreedMetaPanel } from "@/components/molecules/BreedMetaPanel";
+import type { DogCard } from "@/interfaces/dog-card.interface";
+import type { VoteValue } from "@/interfaces/vote.interface";
+
+interface Props {
+  currentCard: DogCard | null;
+  nextCard: DogCard | null;
+  disabled?: boolean;
+  queuedSwipeValue?: VoteValue | null;
+  onQueuedSwipeHandled?: () => void;
+  onSwipe: (value: VoteValue) => void;
+  onOpenDetails: (breedId: number) => void;
+}
+
+interface DragState {
+  x: number;
+  y: number;
+  isThrowing: boolean;
+  transition: string;
+}
+
+const swipeThreshold = 110;
+const throwDurationMs = 320;
+
+function getMotionIntensity(x: number, y: number): number {
+  const distance = Math.sqrt(x * x + y * y);
+  const maxDistance = 240;
+  const normalized = distance / maxDistance;
+
+  if (normalized > 1) {
+    return 1;
+  }
+
+  if (normalized < 0) {
+    return 0;
+  }
+
+  return normalized;
+}
+
+export function DogCardStack(props: Props) {
+  const currentCard = props.currentCard;
+  const disabled = props.disabled;
+  const queuedSwipeValue = props.queuedSwipeValue;
+  const onQueuedSwipeHandled = props.onQueuedSwipeHandled;
+  const onSwipe = props.onSwipe;
+
+  const [dragState, setDragState] = useState<DragState>({
+    x: 0,
+    y: 0,
+    isThrowing: false,
+    transition: "transform 180ms ease-out",
+  });
+
+  const pointerStartRef = useRef<{ x: number; y: number } | null>(null);
+  const movedRef = useRef(false);
+
+  function resetCardPosition() {
+    setDragState({
+      x: 0,
+      y: 0,
+      isThrowing: false,
+      transition: "transform 180ms ease-out",
+    });
+  }
+
+  function settleAfterSwipe() {
+    setDragState({
+      x: 0,
+      y: 0,
+      isThrowing: false,
+      transition: "none",
+    });
+  }
+
+  function handleSwipeDecision(value: VoteValue, isQueuedSwipe: boolean) {
+    const outX = value === -1 ? -520 : value === 1 ? 520 : 0;
+    const outY = value === 2 ? -520 : 80;
+
+    setDragState({
+      x: outX,
+      y: outY,
+      isThrowing: true,
+      transition:
+        "transform 320ms cubic-bezier(0.16, 1, 0.3, 1), opacity 320ms cubic-bezier(0.16, 1, 0.3, 1), filter 320ms ease-out",
+    });
+
+    window.setTimeout(() => {
+      settleAfterSwipe();
+      movedRef.current = false;
+
+      window.setTimeout(() => {
+        props.onSwipe(value);
+        if (isQueuedSwipe && props.onQueuedSwipeHandled) {
+          props.onQueuedSwipeHandled();
+        }
+      }, 0);
+    }, throwDurationMs);
+  }
+
+  function decideVoteValue(x: number, y: number): VoteValue | null {
+    if (y < -swipeThreshold && Math.abs(y) > Math.abs(x)) {
+      return 2;
+    }
+
+    if (x > swipeThreshold) {
+      return 1;
+    }
+
+    if (x < -swipeThreshold) {
+      return -1;
+    }
+
+    return null;
+  }
+
+  function handlePointerDown(event: React.PointerEvent<HTMLElement>) {
+    if (props.disabled) {
+      return;
+    }
+
+    pointerStartRef.current = {
+      x: event.clientX,
+      y: event.clientY,
+    };
+
+    movedRef.current = false;
+
+    setDragState((previous) => {
+      return {
+        ...previous,
+        isThrowing: false,
+        transition: "none",
+      };
+    });
+
+    event.currentTarget.setPointerCapture(event.pointerId);
+  }
+
+  function handlePointerMove(event: React.PointerEvent<HTMLElement>) {
+    if (!pointerStartRef.current || props.disabled) {
+      return;
+    }
+
+    const deltaX = event.clientX - pointerStartRef.current.x;
+    const deltaY = event.clientY - pointerStartRef.current.y;
+
+    if (Math.abs(deltaX) > 8 || Math.abs(deltaY) > 8) {
+      movedRef.current = true;
+    }
+
+    setDragState({
+      x: deltaX,
+      y: deltaY,
+      isThrowing: false,
+      transition: "none",
+    });
+  }
+
+  function handlePointerEnd(event: React.PointerEvent<HTMLElement>) {
+    if (!pointerStartRef.current) {
+      return;
+    }
+
+    const pointerStart = pointerStartRef.current;
+    const deltaX = event.clientX - pointerStart.x;
+    const deltaY = event.clientY - pointerStart.y;
+    const decision = decideVoteValue(deltaX, deltaY);
+    pointerStartRef.current = null;
+
+    event.currentTarget.releasePointerCapture(event.pointerId);
+
+    if (!decision) {
+      resetCardPosition();
+      return;
+    }
+
+    handleSwipeDecision(decision, false);
+  }
+
+  function handleCardClick() {
+    if (!props.currentCard || movedRef.current || props.disabled) {
+      return;
+    }
+
+    props.onOpenDetails(props.currentCard.breedId);
+  }
+
+  useEffect(() => {
+    if (!queuedSwipeValue || !currentCard || disabled) {
+      return;
+    }
+
+    if (pointerStartRef.current) {
+      return;
+    }
+
+    const queuedValue = queuedSwipeValue;
+    let settleTimer: number | undefined;
+    const kickoffTimer = window.setTimeout(() => {
+      const outX = queuedValue === -1 ? -520 : queuedValue === 1 ? 520 : 0;
+      const outY = queuedValue === 2 ? -520 : 80;
+
+      setDragState({
+        x: outX,
+        y: outY,
+        isThrowing: true,
+        transition:
+          "transform 320ms cubic-bezier(0.16, 1, 0.3, 1), opacity 320ms cubic-bezier(0.16, 1, 0.3, 1), filter 320ms ease-out",
+      });
+
+      settleTimer = window.setTimeout(() => {
+        settleAfterSwipe();
+        movedRef.current = false;
+
+        window.setTimeout(() => {
+          onSwipe(queuedValue);
+          if (onQueuedSwipeHandled) {
+            onQueuedSwipeHandled();
+          }
+        }, 0);
+      }, throwDurationMs);
+    }, 0);
+
+    return () => {
+      window.clearTimeout(kickoffTimer);
+      if (settleTimer !== undefined) {
+        window.clearTimeout(settleTimer);
+      }
+    };
+  }, [
+    queuedSwipeValue,
+    currentCard,
+    disabled,
+    onSwipe,
+    onQueuedSwipeHandled,
+  ]);
+
+  if (!props.currentCard) {
+    return (
+      <div className="flex h-full min-h-0 items-center justify-center bg-card text-center sm:h-[64svh] sm:min-h-[20rem] sm:max-h-[34rem] sm:rounded-3xl sm:border sm:border-border">
+        <p className="text-sm text-muted-foreground">
+          No more dogs in this feed.
+        </p>
+      </div>
+    );
+  }
+
+  const rotation = dragState.x * 0.04;
+  const motionIntensity = getMotionIntensity(dragState.x, dragState.y);
+  const nextCardScale = 0.94 + motionIntensity * 0.06;
+  const nextCardTranslateY = 18 - motionIntensity * 18;
+  const currentOpacity = dragState.isThrowing ? 0 : 1 - motionIntensity * 0.28;
+  const currentSaturation = 1 + motionIntensity * 0.25;
+  const showLove = dragState.x > 30;
+  const showDislike = dragState.x < -30;
+  const showStar =
+    dragState.y < -40 && Math.abs(dragState.y) > Math.abs(dragState.x);
+  const badgeOpacity = 0.22 + motionIntensity * 0.78;
+
+  return (
+    <div className="relative h-full w-full overflow-hidden touch-none sm:mx-auto sm:h-[74svh] sm:min-h-[20rem] sm:max-h-[34rem] sm:max-w-md">
+      {props.nextCard ? (
+        <article
+          className="absolute inset-0 bg-muted shadow-lg sm:rounded-3xl sm:border sm:border-border"
+          style={{
+            backgroundImage: props.nextCard.imageUrl
+              ? `url(${props.nextCard.imageUrl})`
+              : undefined,
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+            transform: `translateY(${nextCardTranslateY}px) scale(${nextCardScale})`,
+            transition: "transform 220ms cubic-bezier(0.16, 1, 0.3, 1)",
+          }}
+        >
+          <div className="absolute inset-0 bg-background/45 sm:rounded-3xl" />
+        </article>
+      ) : null}
+
+      <article
+        role="button"
+        tabIndex={0}
+        aria-label={`Open details for ${props.currentCard.breedName}`}
+        onClick={handleCardClick}
+        onKeyDown={(event) => {
+          if (event.key === "Enter" || event.key === " ") {
+            event.preventDefault();
+            handleCardClick();
+          }
+        }}
+        onPointerDown={handlePointerDown}
+        onPointerMove={handlePointerMove}
+        onPointerUp={handlePointerEnd}
+        onPointerCancel={handlePointerEnd}
+        className="absolute inset-0 cursor-grab select-none bg-card shadow-2xl active:cursor-grabbing sm:rounded-3xl sm:border sm:border-border"
+        style={{
+          transform: `translate(${dragState.x}px, ${dragState.y}px) rotate(${rotation}deg)`,
+          transition: dragState.transition,
+          opacity: currentOpacity,
+          filter: `saturate(${currentSaturation})`,
+          backgroundImage: props.currentCard.imageUrl
+            ? `url(${props.currentCard.imageUrl})`
+            : undefined,
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+        }}
+      >
+        <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/20 to-background/15 sm:rounded-3xl" />
+        {showDislike ? (
+          <span
+            className="absolute right-2 top-9 rotate-[20deg] rounded-2xl border-[3px] border-destructive bg-background/75 px-6 py-3 text-lg font-black uppercase tracking-[0.24em] text-destructive shadow-2xl shadow-destructive/35 backdrop-blur-sm sm:right-4 sm:top-10"
+            style={{ opacity: badgeOpacity }}
+          >
+            Nope
+          </span>
+        ) : null}
+        {showLove ? (
+          <span
+            className="absolute left-2 top-9 -rotate-[20deg] rounded-2xl border-[3px] border-secondary bg-background/75 px-6 py-3 text-lg font-black uppercase tracking-[0.24em] text-secondary shadow-2xl shadow-secondary/35 backdrop-blur-sm sm:left-4 sm:top-10"
+            style={{ opacity: badgeOpacity }}
+          >
+            Love
+          </span>
+        ) : null}
+        {showStar ? (
+          <span
+            className="absolute left-1/2 top-5 -translate-x-1/2 rounded-lg border border-primary bg-background/55 px-3 py-1.5 text-sm font-bold uppercase tracking-wider text-primary backdrop-blur-sm"
+            style={{ opacity: badgeOpacity }}
+          >
+            Star
+          </span>
+        ) : null}
+        <BreedMetaPanel
+          breedName={props.currentCard.breedName}
+          temperamentList={props.currentCard.temperamentList}
+        />
+      </article>
+    </div>
+  );
+}
