@@ -13,6 +13,10 @@ import type { SwipeHistoryEntry } from '@/interfaces/swipe-history.interface';
 import type { VoteValue } from '@/interfaces/vote.interface';
 import { useHistoryStore } from '@/stores/useHistoryStore';
 
+/**
+ * Favourite payloads sometimes embed breed data on `image.breeds[0]`; otherwise match the parent
+ * breed list by `reference_image_id` or nested `image.id` so cards show the correct name and id.
+ */
 function findBreedForFavourite(options: { favourite: DogFavorite; breeds: DogBreed[] }): DogBreed | undefined {
   const favouriteBreed = options.favourite.image?.breeds?.[0];
 
@@ -56,6 +60,10 @@ function mapFavouritesToHistoryEntries(options: {
   });
 }
 
+/**
+ * API favourites do not distinguish like vs super-like. If we have a local swipe for the same
+ * `imageId` with value 1 or 2, reuse it for chips; otherwise default to like (1).
+ */
 function resolveFavouriteValue(options: {
   imageId: string | null;
   historyEntries: SwipeHistoryEntry[];

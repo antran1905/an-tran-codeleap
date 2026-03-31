@@ -4,8 +4,14 @@ import { Env } from '@/Env';
 import type { VoteValue } from '@/interfaces/vote.interface';
 import { getStorageItem, setStorageItem } from '@/utils/local-storage';
 
+/**
+ * Swipe progress lives in localStorage so refresh restores deck position.
+ * Indices are 0..maxLength inclusive: `maxLength` means the user finished the list
+ * (no breed at that index), so `clampIndex` allows values up to `maxLength`.
+ */
 interface SwipeStoreState {
   currentIndex: number;
+  /** Incremented only when persistence succeeds; UI can subscribe for save confirmation. */
   progressSaveSignal: number;
   lastSavedIndex: number;
   swipeFeedbackSignal: number;
@@ -19,6 +25,7 @@ interface SwipeStoreState {
 }
 
 function clampIndex(value: number, maxLength: number): number {
+  // maxLength is a valid index: it represents "past the last item" after the final swipe.
   if (maxLength <= 0) {
     return 0;
   }
@@ -68,6 +75,7 @@ export const useSwipeStore = create<SwipeStoreState>((set, get) => ({
       return;
     }
 
+    // Shorter breed lists would otherwise point past the end; clamp and rewrite storage.
     const safeIndex = clampIndex(parsedValue, maxLength);
     persistProgress(safeIndex);
     set({ currentIndex: safeIndex });
@@ -89,6 +97,7 @@ export const useSwipeStore = create<SwipeStoreState>((set, get) => ({
       return;
     }
 
+    // After the last breed (index maxLength - 1), land on maxLength as the completed state.
     if (nextIndex > maxLength - 1) {
       const didPersist = persistProgress(maxLength);
       set((state) => {
@@ -142,6 +151,7 @@ export const useSwipeStore = create<SwipeStoreState>((set, get) => ({
     });
   },
   showSwipeFeedback: (value) => {
+    // Monotonic signal + last value lets listeners run effects on every swipe, even same vote twice.
     set((state) => {
       return {
         swipeFeedbackSignal: state.swipeFeedbackSignal + 1,

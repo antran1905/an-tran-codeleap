@@ -74,6 +74,7 @@ export function DogDetailsPage() {
       return item.id === selectedBreed.id;
     });
 
+    // Align the home deck with "next card after this breed" so returning to `/` does not repeat it.
     if (selectedBreedIndex >= 0) {
       setCurrentIndex(selectedBreedIndex + 1, swipeableBreeds.length);
     }

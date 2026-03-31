@@ -9,7 +9,7 @@ import { toVoteValue } from '@/utils/vote';
 
 function filterHistoryEntries(entries: SwipeHistoryEntry[], filter: HistoryFilter): SwipeHistoryEntry[] {
   const voteValue = toVoteValue(filter);
-
+  // `all` maps to null and skips filtering; other tabs narrow to a single vote kind.
   if (voteValue === null) {
     return entries;
   }

@@ -47,6 +47,7 @@ export async function getDogFavourites(
     },
   });
 
+  // Dog API encodes pagination metadata in response headers, not the JSON body.
   const totalCount = parsePositiveInteger(response.headers['pagination-count']);
   const currentPage = parsePositiveInteger(response.headers['pagination-page']);
   const currentLimit = parsePositiveInteger(response.headers['pagination-limit']);

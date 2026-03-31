@@ -39,6 +39,7 @@ export const useHistoryStore = create<HistoryStoreState>((set, get) => ({
     set({ filter });
   },
   appendEntry: (entry) => {
+    // Newest-first matches UI lists (history/favourites) without extra sorting on read.
     const nextEntries = [entry, ...get().entries];
     persistHistory(nextEntries);
     set({ entries: nextEntries });
@@ -50,6 +51,7 @@ export const useHistoryStore = create<HistoryStoreState>((set, get) => ({
       return null;
     }
 
+    // `entries[0]` is the most recent swipe; undo removes that head item.
     const nextEntries = entries.slice(1);
     persistHistory(nextEntries);
     set({ entries: nextEntries });

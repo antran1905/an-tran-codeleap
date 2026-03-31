@@ -13,6 +13,7 @@ interface CenteredAppShellTemplateProps {
 
 export function CenteredAppShellTemplate(props: CenteredAppShellTemplateProps) {
   const location = useLocation();
+  // Home and breed details use full-bleed card stacks; list pages scroll inside the shell.
   const isCardLayoutPage =
     location.pathname === "/" || location.pathname.startsWith("/dogs/");
   const swipeFeedbackSignal = useSwipeStore(
@@ -25,6 +26,7 @@ export function CenteredAppShellTemplate(props: CenteredAppShellTemplateProps) {
     useState(false);
   const hideToastTimerRef = useRef<number | null>(null);
 
+  // `swipeFeedbackSignal` increments on every swipe so identical consecutive votes still retrigger UI.
   useEffect(() => {
     if (swipeFeedbackSignal <= 0) {
       return;

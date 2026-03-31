@@ -17,6 +17,7 @@ import { useHistoryStore } from "@/stores/useHistoryStore";
 import { useSwipeStore } from "@/stores/useSwipeStore";
 import { isBreedSwipeable, toDogCard } from "@/utils/dog-card";
 
+/** Builds the client-side history row; `imageId` drives vote + favourite API calls when present. */
 function createHistoryEntry(
   breed: DogBreed,
   value: VoteValue,
@@ -80,6 +81,7 @@ export function HomePage() {
         value,
       });
 
+      // Likes and super-likes also create a favourite on the backend; rejects do not.
       if (value === 1 || value === 2) {
         createDogFavouriteMutation.mutate({
           imageId: historyEntry.imageId,
@@ -91,6 +93,10 @@ export function HomePage() {
     advance(breeds.length);
   }
 
+  /**
+   * Action bar taps cannot drive the same pointer path as dragging the card. Queue a vote so
+   * `DogCardStack` runs the throw animation, then calls `submitVote` once via `onSwipe`.
+   */
   function queueSwipe(value: VoteValue) {
     if (!currentBreed || queuedSwipeValue) {
       return;

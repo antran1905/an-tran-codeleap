@@ -27,6 +27,7 @@ interface DragState {
 const swipeThreshold = 110;
 const throwDurationMs = 320;
 
+/** Maps drag distance to 0..1 for peek-card scale, opacity, and badge strength. */
 function getMotionIntensity(x: number, y: number): number {
   const distance = Math.sqrt(x * x + y * y);
   const maxDistance = 240;
@@ -69,6 +70,7 @@ export function DogCardStack(props: Props) {
     });
   }
 
+  /** Snap transform back with transition disabled so the next card does not animate from the throw pose. */
   function settleAfterSwipe() {
     setDragState({
       x: 0,
@@ -90,6 +92,8 @@ export function DogCardStack(props: Props) {
         "transform 320ms cubic-bezier(0.16, 1, 0.3, 1), opacity 320ms cubic-bezier(0.16, 1, 0.3, 1), filter 320ms ease-out",
     });
 
+    // Outer timeout matches the throw animation; inner `setTimeout(0)` defers `onSwipe` until after
+    // React applies the reset transform so the incoming card mounts from a neutral position.
     window.setTimeout(() => {
       settleAfterSwipe();
       movedRef.current = false;
@@ -103,6 +107,7 @@ export function DogCardStack(props: Props) {
     }, throwDurationMs);
   }
 
+  /** Super-like (2) wins when the drag is mostly upward; otherwise horizontal thresholds pick like/dislike. */
   function decideVoteValue(x: number, y: number): VoteValue | null {
     if (y < -swipeThreshold && Math.abs(y) > Math.abs(x)) {
       return 2;
@@ -150,6 +155,7 @@ export function DogCardStack(props: Props) {
     const deltaX = event.clientX - pointerStartRef.current.x;
     const deltaY = event.clientY - pointerStartRef.current.y;
 
+    // Small jitter should still open details on tap; this threshold marks an intentional drag.
     if (Math.abs(deltaX) > 8 || Math.abs(deltaY) > 8) {
       movedRef.current = true;
     }
@@ -196,6 +202,8 @@ export function DogCardStack(props: Props) {
     props.onOpenDetails(props.currentCard.breedId);
   }
 
+  // Toolbar/button swipes set `queuedSwipeValue` instead of pointer events; mirror the same animation
+  // and timing as `handleSwipeDecision`. Skip while a pointer gesture is active to avoid double-firing.
   useEffect(() => {
     if (!queuedSwipeValue || !currentCard) {
       return;
@@ -207,6 +215,7 @@ export function DogCardStack(props: Props) {
 
     const queuedValue = queuedSwipeValue;
     let settleTimer: number | undefined;
+    // `setTimeout(0)` yields until after commit so state from the click handler is stable.
     const kickoffTimer = window.setTimeout(() => {
       const outX = queuedValue === -1 ? -520 : queuedValue === 1 ? 520 : 0;
       const outY = queuedValue === 2 ? -520 : 80;
@@ -252,6 +261,7 @@ export function DogCardStack(props: Props) {
 
   const rotation = dragState.x * 0.04;
   const motionIntensity = getMotionIntensity(dragState.x, dragState.y);
+  // Underlay card eases forward as the top card moves, hinting the next item without layout shift.
   const nextCardScale = 0.94 + motionIntensity * 0.06;
   const nextCardTranslateY = 18 - motionIntensity * 18;
   const currentOpacity = dragState.isThrowing ? 0 : 1 - motionIntensity * 0.28;
