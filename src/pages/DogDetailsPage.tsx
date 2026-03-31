@@ -1,4 +1,4 @@
-import { useLoaderData, useParams } from 'react-router-dom';
+import { useLoaderData, useNavigate, useParams } from 'react-router-dom';
 
 import { DogCardStackSkeleton } from '@/components/organisms/DogCardStackSkeleton';
 import { DogDetailsPanel } from '@/components/organisms/DogDetailsPanel';
@@ -9,13 +9,17 @@ import type { DogDetailsLoaderData } from '@/routes/loaders/dog-details.loader';
 import { useDogBreedsQuery } from '@/hooks/useDogBreedsQuery';
 import { useVoteDogMutation } from '@/hooks/useVoteDogMutation';
 import type { VoteValue } from '@/interfaces/vote.interface';
+import { useSwipeStore } from '@/stores/useSwipeStore';
+import { isBreedSwipeable } from '@/utils/dog-card';
 
 export function DogDetailsPage() {
+  const navigate = useNavigate();
   const loaderData = useLoaderData() as DogDetailsLoaderData | undefined;
   const params = useParams();
   const dogBreedsQuery = useDogBreedsQuery();
   const voteDogMutation = useVoteDogMutation();
   const createDogFavouriteMutation = useCreateDogFavouriteMutation();
+  const setCurrentIndex = useSwipeStore((state) => state.setCurrentIndex);
   const dogId = Number(loaderData?.dogId ?? params.dogId);
 
   if (dogBreedsQuery.isLoading) {
@@ -46,24 +50,34 @@ export function DogDetailsPage() {
   }
 
   const selectedBreed = breed;
+  const swipeableBreeds =
+    dogBreedsQuery.data?.filter((item) => isBreedSwipeable(item)) ?? [];
 
   function handleVote(value: VoteValue) {
     const imageId = selectedBreed.reference_image_id ?? selectedBreed.image?.id;
 
-    if (!imageId) {
-      return;
+    if (imageId) {
+      voteDogMutation.mutate({
+        imageId,
+        value,
+      });
+
+      if (value === 1 || value === 2) {
+        createDogFavouriteMutation.mutate({
+          imageId,
+        });
+      }
     }
 
-    voteDogMutation.mutate({
-      imageId,
-      value,
+    const selectedBreedIndex = swipeableBreeds.findIndex((item) => {
+      return item.id === selectedBreed.id;
     });
 
-    if (value === 1 || value === 2) {
-      createDogFavouriteMutation.mutate({
-        imageId,
-      });
+    if (selectedBreedIndex >= 0) {
+      setCurrentIndex(selectedBreedIndex + 1, swipeableBreeds.length);
     }
+
+    navigate('/');
   }
 
   return (
