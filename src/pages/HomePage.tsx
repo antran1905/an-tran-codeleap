@@ -10,6 +10,7 @@ import { DogCardStack } from "@/components/organisms/DogCardStack";
 import type { DogBreed } from "@/interfaces/dog-breed.interface";
 import type { SwipeHistoryEntry } from "@/interfaces/swipe-history.interface";
 import type { VoteValue } from "@/interfaces/vote.interface";
+import { useCreateDogFavouriteMutation } from "@/hooks/useCreateDogFavouriteMutation";
 import { useDogBreedsQuery } from "@/hooks/useDogBreedsQuery";
 import { useVoteDogMutation } from "@/hooks/useVoteDogMutation";
 import { useHistoryStore } from "@/stores/useHistoryStore";
@@ -35,6 +36,7 @@ export function HomePage() {
   const navigate = useNavigate();
   const dogBreedsQuery = useDogBreedsQuery();
   const voteDogMutation = useVoteDogMutation();
+  const createDogFavouriteMutation = useCreateDogFavouriteMutation();
 
   const currentIndex = useSwipeStore((state) => state.currentIndex);
   const hydrateIndex = useSwipeStore((state) => state.hydrateIndex);
@@ -76,6 +78,12 @@ export function HomePage() {
         imageId: historyEntry.imageId,
         value,
       });
+
+      if (value === 1 || value === 2) {
+        createDogFavouriteMutation.mutate({
+          imageId: historyEntry.imageId,
+        });
+      }
     }
 
     advance(breeds.length);

@@ -7,6 +7,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { HomePage } from '@/pages/HomePage';
 import { useHistoryStore } from '@/stores/useHistoryStore';
 import { useSwipeStore } from '@/stores/useSwipeStore';
+import { useCreateDogFavouriteMutation } from '@/hooks/useCreateDogFavouriteMutation';
 import { useDogBreedsQuery } from '@/hooks/useDogBreedsQuery';
 import { useVoteDogMutation } from '@/hooks/useVoteDogMutation';
 
@@ -19,6 +20,12 @@ vi.mock('@/hooks/useDogBreedsQuery', () => {
 vi.mock('@/hooks/useVoteDogMutation', () => {
   return {
     useVoteDogMutation: vi.fn(),
+  };
+});
+
+vi.mock('@/hooks/useCreateDogFavouriteMutation', () => {
+  return {
+    useCreateDogFavouriteMutation: vi.fn(),
   };
 });
 
@@ -35,11 +42,13 @@ function renderHomePage() {
 }
 
 describe('HomePage', () => {
-  const mutateSpy = vi.fn();
+  const voteMutateSpy = vi.fn();
+  const favouriteMutateSpy = vi.fn();
 
   beforeEach(() => {
     window.localStorage.clear();
-    mutateSpy.mockReset();
+    voteMutateSpy.mockReset();
+    favouriteMutateSpy.mockReset();
 
     useSwipeStore.setState({ currentIndex: 0 });
     useHistoryStore.setState({ entries: [], filter: 'all' });
@@ -61,9 +70,14 @@ describe('HomePage', () => {
     } as ReturnType<typeof useDogBreedsQuery>);
 
     vi.mocked(useVoteDogMutation).mockReturnValue({
-      mutate: mutateSpy,
+      mutate: voteMutateSpy,
       isPending: false,
     } as unknown as ReturnType<typeof useVoteDogMutation>);
+
+    vi.mocked(useCreateDogFavouriteMutation).mockReturnValue({
+      mutate: favouriteMutateSpy,
+      isPending: false,
+    } as unknown as ReturnType<typeof useCreateDogFavouriteMutation>);
   });
 
   it('records like action from button controls', async () => {
@@ -75,7 +89,22 @@ describe('HomePage', () => {
 
     await waitFor(() => {
       expect(useHistoryStore.getState().entries).toHaveLength(1);
-      expect(mutateSpy).toHaveBeenCalledWith({ imageId: 'img-1', value: 1 });
+      expect(voteMutateSpy).toHaveBeenCalledWith({ imageId: 'img-1', value: 1 });
+      expect(favouriteMutateSpy).toHaveBeenCalledWith({ imageId: 'img-1' });
+    });
+  });
+
+  it('records dislike without creating a favourite', async () => {
+    const user = userEvent.setup();
+
+    renderHomePage();
+
+    await user.click(screen.getByRole('button', { name: 'Dislike' }));
+
+    await waitFor(() => {
+      expect(useHistoryStore.getState().entries).toHaveLength(1);
+      expect(voteMutateSpy).toHaveBeenCalledWith({ imageId: 'img-1', value: -1 });
+      expect(favouriteMutateSpy).not.toHaveBeenCalled();
     });
   });
 });

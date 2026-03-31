@@ -106,12 +106,16 @@ pnpm dev
   - Components never call axios directly.
 - Server/client state split:
   - TanStack Query handles remote breed/vote operations.
+  - TanStack Query also handles remote favourites (`GET /v1/favourites`).
   - Zustand handles local swipe position and history filter.
 - Swipe progress persistence:
   - Progress is persisted in `localStorage` using `VITE_PROGRESS_STORAGE_KEY`.
   - App resumes from stored position on reload.
 - History persistence:
   - Interaction history is stored locally under a key derived from progress storage key.
+- Favorites page data source:
+  - Favorites are loaded from Dog API favourites endpoint, then mapped to UI rows.
+  - Breed names are resolved from API image breeds or fallback-matched against `/breeds`.
 - Non-blocking voting UX:
   - Vote request runs in background after interaction is recorded locally.
   - Mutation retries are enabled (`retry: 2` with backoff) to reduce transient failures.
@@ -147,7 +151,7 @@ pnpm lint && pnpm check:types && pnpm test
   - home vote interaction
   - details required fields
   - history filtering
-  - favorites filtering
+  - favorites API rendering
 
 ## API Reference
 

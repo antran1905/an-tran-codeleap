@@ -28,9 +28,11 @@ export function InteractionHistoryList(props: InteractionHistoryListProps) {
             </div>
             <div className="mt-2 flex flex-wrap items-center justify-between gap-2 text-xs text-muted-foreground">
               <span>{new Date(entry.createdAt).toLocaleString()}</span>
-              <Link to={`/dogs/${entry.breedId}`} className="text-primary underline-offset-2 hover:underline">
-                View Details
-              </Link>
+              {entry.breedId > 0 ? (
+                <Link to={`/dogs/${entry.breedId}`} className="text-primary underline-offset-2 hover:underline">
+                  View Details
+                </Link>
+              ) : null}
             </div>
           </li>
         );
