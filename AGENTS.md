@@ -72,6 +72,7 @@
 - Conventional Commits: `type: summary` without scope.
 - Summary: Short, specific sentence explaining what changed and why.
 - Types: `feat|fix|docs|style|refactor|perf|test|build|ci|chore|revert`.
+- Follow the commitlint conventional
 
 ## Token Efficiency
 - Skip recaps and explanations unless the result is ambiguous or you need clarification before proceeding.
