@@ -47,3 +47,35 @@ body {
 #root {
   min-height: 100vh;
 }
+
+@keyframes details-metadata-enter {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes details-row-enter {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.details-metadata-enter {
+  animation: details-metadata-enter 320ms ease-out both;
+}
+
+.details-row-enter {
+  animation: details-row-enter 260ms ease-out both;
+}

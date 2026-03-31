@@ -18,16 +18,16 @@ describe('DogDetailsPanel', () => {
           temperament: 'Stubborn, Curious',
           image: { id: '1', url: 'https://example.com/dog.jpg' },
         }}
+        onVote={() => undefined}
       />,
     );
 
     expect(screen.getByRole('heading', { name: 'Affenpinscher' })).toBeInTheDocument();
-    expect(screen.getByText('Name')).toBeInTheDocument();
-    expect(screen.getByText('Weight (Metric)')).toBeInTheDocument();
-    expect(screen.getByText('Height (Metric)')).toBeInTheDocument();
-    expect(screen.getByText('Bred For')).toBeInTheDocument();
-    expect(screen.getByText('Breed Group')).toBeInTheDocument();
-    expect(screen.getByText('Life Span')).toBeInTheDocument();
-    expect(screen.getByText('Temperament')).toBeInTheDocument();
+    expect(screen.getByText('Breed For -', { exact: false })).toBeInTheDocument();
+    expect(screen.getByText('Breed Group -', { exact: false })).toBeInTheDocument();
+    expect(screen.getByText('Weight (Metric) -', { exact: false })).toBeInTheDocument();
+    expect(screen.getByText('Height (Metric) -', { exact: false })).toBeInTheDocument();
+    expect(screen.getByText('Life Span -', { exact: false })).toBeInTheDocument();
+    expect(screen.getByText('Temperament -', { exact: false })).toBeInTheDocument();
   });
 });

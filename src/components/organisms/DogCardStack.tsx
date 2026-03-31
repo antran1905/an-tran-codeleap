@@ -9,6 +9,8 @@ interface Props {
   currentCard: DogCard | null;
   nextCard: DogCard | null;
   disabled?: boolean;
+  canOpenDetails?: boolean;
+  metadata?: React.ReactNode;
   queuedSwipeValue?: VoteValue | null;
   onQueuedSwipeHandled?: () => void;
   onSwipe: (value: VoteValue) => void;
@@ -43,6 +45,7 @@ function getMotionIntensity(x: number, y: number): number {
 
 export function DogCardStack(props: Props) {
   const currentCard = props.currentCard;
+  const canOpenDetails = props.canOpenDetails ?? true;
   const queuedSwipeValue = props.queuedSwipeValue;
   const onQueuedSwipeHandled = props.onQueuedSwipeHandled;
   const onSwipe = props.onSwipe;
@@ -181,7 +184,7 @@ export function DogCardStack(props: Props) {
   }
 
   function handleCardClick() {
-    if (!props.currentCard || movedRef.current || props.disabled) {
+    if (!canOpenDetails || !props.currentCard || movedRef.current || props.disabled) {
       return;
     }
 
@@ -279,11 +282,15 @@ export function DogCardStack(props: Props) {
       ) : null}
 
       <article
-        role="button"
-        tabIndex={0}
-        aria-label={`Open details for ${props.currentCard.breedName}`}
+        role={canOpenDetails ? "button" : undefined}
+        tabIndex={canOpenDetails ? 0 : -1}
+        aria-label={canOpenDetails ? `Open details for ${props.currentCard.breedName}` : undefined}
         onClick={handleCardClick}
         onKeyDown={(event) => {
+          if (!canOpenDetails) {
+            return;
+          }
+
           if (event.key === "Enter" || event.key === " ") {
             event.preventDefault();
             handleCardClick();
@@ -331,10 +338,14 @@ export function DogCardStack(props: Props) {
             Star
           </span>
         ) : null}
-        <BreedMetaPanel
-          breedName={props.currentCard.breedName}
-          temperamentList={props.currentCard.temperamentList}
-        />
+        {props.metadata ? (
+          props.metadata
+        ) : (
+          <BreedMetaPanel
+            breedName={props.currentCard.breedName}
+            temperamentList={props.currentCard.temperamentList}
+          />
+        )}
       </article>
     </div>
   );
