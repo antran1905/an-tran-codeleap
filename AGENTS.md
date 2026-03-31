@@ -99,3 +99,9 @@
 - **Code Splitting & Lazy Loading:** Use React's `lazy()` or React Router's lazy loading features for route-level components to minimize the initial JS bundle payload.
 - **Tree-Shaking:** Import specific modules from libraries rather than the entire package (e.g., `import { format } from 'date-fns'` instead of `import dateFns from 'date-fns'`).
 - **Interaction to Next Paint (INP):** Do not block the main thread. Defer heavy synchronous computations outside of the render cycle.
+
+## 🎯 The 80% Rule
+**Strict Requirement:** This project requires a minimum of **80% unit test coverage** for all business logic, utility functions, and API routes.
+- **Non-Negotiable:** Do not suggest merging or finalizing code that drops coverage below this threshold.
+- **New Features:** Every new feature must include a corresponding `.test.ts` or `.test.js` file.
+- **Refactoring:** If refactoring existing code, you must update the tests to ensure coverage does not lapse.
