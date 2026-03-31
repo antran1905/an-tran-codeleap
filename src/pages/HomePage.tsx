@@ -82,7 +82,7 @@ export function HomePage() {
   }
 
   function queueSwipe(value: VoteValue) {
-    if (!currentBreed || voteDogMutation.isPending || queuedSwipeValue) {
+    if (!currentBreed || queuedSwipeValue) {
       return;
     }
 
@@ -122,7 +122,7 @@ export function HomePage() {
         <DogCardStack
           currentCard={currentBreed ? toDogCard(currentBreed) : null}
           nextCard={nextBreed ? toDogCard(nextBreed) : null}
-          disabled={voteDogMutation.isPending}
+          disabled={Boolean(queuedSwipeValue)}
           queuedSwipeValue={queuedSwipeValue}
           onQueuedSwipeHandled={() => setQueuedSwipeValue(null)}
           onSwipe={submitVote}
@@ -133,7 +133,6 @@ export function HomePage() {
       <div className="px-3 py-2 sm:px-0 sm:py-0">
         <SwipeActionBar
           disabled={
-            voteDogMutation.isPending ||
             !currentBreed ||
             Boolean(queuedSwipeValue)
           }

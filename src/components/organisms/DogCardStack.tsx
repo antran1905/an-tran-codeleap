@@ -43,7 +43,6 @@ function getMotionIntensity(x: number, y: number): number {
 
 export function DogCardStack(props: Props) {
   const currentCard = props.currentCard;
-  const disabled = props.disabled;
   const queuedSwipeValue = props.queuedSwipeValue;
   const onQueuedSwipeHandled = props.onQueuedSwipeHandled;
   const onSwipe = props.onSwipe;
@@ -190,7 +189,7 @@ export function DogCardStack(props: Props) {
   }
 
   useEffect(() => {
-    if (!queuedSwipeValue || !currentCard || disabled) {
+    if (!queuedSwipeValue || !currentCard) {
       return;
     }
 
@@ -234,7 +233,6 @@ export function DogCardStack(props: Props) {
   }, [
     queuedSwipeValue,
     currentCard,
-    disabled,
     onSwipe,
     onQueuedSwipeHandled,
   ]);
