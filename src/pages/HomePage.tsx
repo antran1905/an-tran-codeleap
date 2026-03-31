@@ -1,19 +1,17 @@
-import { useEffect } from "react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { ErrorState } from "@/components/atoms/ErrorState";
-import { LoadingState } from "@/components/atoms/LoadingState";
 import { SwipeActionBar } from "@/components/molecules/SwipeActionBar";
 import { SwipeActionBarSkeleton } from "@/components/molecules/SwipeActionBarSkeleton";
-import { DogCardStackSkeleton } from "@/components/organisms/DogCardStackSkeleton";
 import { DogCardStack } from "@/components/organisms/DogCardStack";
-import type { DogBreed } from "@/interfaces/dog-breed.interface";
-import type { SwipeHistoryEntry } from "@/interfaces/swipe-history.interface";
-import type { VoteValue } from "@/interfaces/vote.interface";
+import { DogCardStackSkeleton } from "@/components/organisms/DogCardStackSkeleton";
 import { useCreateDogFavouriteMutation } from "@/hooks/useCreateDogFavouriteMutation";
 import { useDogBreedsQuery } from "@/hooks/useDogBreedsQuery";
 import { useVoteDogMutation } from "@/hooks/useVoteDogMutation";
+import type { DogBreed } from "@/interfaces/dog-breed.interface";
+import type { SwipeHistoryEntry } from "@/interfaces/swipe-history.interface";
+import type { VoteValue } from "@/interfaces/vote.interface";
 import { useHistoryStore } from "@/stores/useHistoryStore";
 import { useSwipeStore } from "@/stores/useSwipeStore";
 import { isBreedSwipeable, toDogCard } from "@/utils/dog-card";
@@ -117,11 +115,6 @@ export function HomePage() {
         <div className="min-h-0 flex-1">
           <DogCardStackSkeleton />
         </div>
-        <LoadingState
-          compact
-          title="Loading your swipe deck"
-          message="Finding dogs you can review right now."
-        />
         <div className="px-3 pt-1 pb-[calc(env(safe-area-inset-bottom)+0.5rem)] sm:px-0 sm:py-0">
           <SwipeActionBarSkeleton />
         </div>
@@ -140,7 +133,7 @@ export function HomePage() {
         title="Unable to load dogs"
         message={errorContent.message}
         details={errorContent.details}
-        action={(
+        action={
           <button
             type="button"
             className="rounded-full border border-border bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground"
@@ -150,7 +143,7 @@ export function HomePage() {
           >
             Try again
           </button>
-        )}
+        }
       />
     );
   }
@@ -161,7 +154,7 @@ export function HomePage() {
         title="No dogs available yet"
         message="We could not find swipe-ready breeds at the moment."
         details="Please refresh in a moment to load a new deck."
-        action={(
+        action={
           <button
             type="button"
             className="rounded-full border border-border bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground"
@@ -171,7 +164,7 @@ export function HomePage() {
           >
             Refresh deck
           </button>
-        )}
+        }
       />
     );
   }
@@ -192,10 +185,7 @@ export function HomePage() {
 
       <div className="px-3 pt-1 pb-[calc(env(safe-area-inset-bottom)+0.5rem)] sm:px-0 sm:py-0">
         <SwipeActionBar
-          disabled={
-            !currentBreed ||
-            Boolean(queuedSwipeValue)
-          }
+          disabled={!currentBreed || Boolean(queuedSwipeValue)}
           onReject={() => queueSwipe(-1)}
           onLike={() => queueSwipe(1)}
           onSuperLike={() => queueSwipe(2)}

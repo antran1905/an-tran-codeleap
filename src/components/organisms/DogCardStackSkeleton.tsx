@@ -1,11 +1,11 @@
-import { Skeleton } from '@/components/atoms/Skeleton';
+import { Skeleton } from "@/components/atoms/Skeleton";
 
 export function DogCardStackSkeleton() {
   return (
     <div
       aria-busy="true"
       aria-label="Loading dog feed"
-      className="relative h-full min-h-[20rem] w-full touch-none overflow-hidden max-h-[calc(100svh-10.5rem)] sm:mx-auto sm:h-[74svh] sm:max-h-136 sm:min-h-80 sm:max-w-md"
+      className="relative h-full max-h-[calc(100svh-10.5rem)] min-h-[20rem] w-full touch-none overflow-hidden sm:mx-auto sm:h-[74svh] sm:max-h-136 sm:min-h-80 sm:max-w-md"
       role="status"
     >
       <div
