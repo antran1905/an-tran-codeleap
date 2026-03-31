@@ -1,7 +1,7 @@
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
-import { describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { useDogBreedsQuery } from '@/hooks/useDogBreedsQuery';
 import { useDogFavouritesQuery } from '@/hooks/useDogFavouritesQuery';
@@ -27,6 +27,14 @@ vi.mock('@/stores/useHistoryStore', () => {
 });
 
 describe('FavoritesPage', () => {
+  const breedsRefetchSpy = vi.fn();
+  const favouritesRefetchSpy = vi.fn();
+
+  beforeEach(() => {
+    breedsRefetchSpy.mockReset();
+    favouritesRefetchSpy.mockReset();
+  });
+
   function mockHistoryStore(options?: {
     entries?: Array<{
       id: string;
@@ -69,9 +77,11 @@ describe('FavoritesPage', () => {
         },
       ],
       isLoading: false,
+      isFetching: false,
       isError: false,
       error: null,
-    } as ReturnType<typeof useDogBreedsQuery>);
+      refetch: breedsRefetchSpy,
+    } as unknown as ReturnType<typeof useDogBreedsQuery>);
   }
 
   it('shows favourites from API data', () => {
@@ -99,7 +109,8 @@ describe('FavoritesPage', () => {
       isFetching: false,
       isError: false,
       error: null,
-    } as ReturnType<typeof useDogFavouritesQuery>);
+      refetch: favouritesRefetchSpy,
+    } as unknown as ReturnType<typeof useDogFavouritesQuery>);
 
     render(
       <MemoryRouter>
@@ -145,7 +156,8 @@ describe('FavoritesPage', () => {
       isFetching: false,
       isError: false,
       error: null,
-    } as ReturnType<typeof useDogFavouritesQuery>);
+      refetch: favouritesRefetchSpy,
+    } as unknown as ReturnType<typeof useDogFavouritesQuery>);
 
     render(
       <MemoryRouter>
@@ -158,7 +170,7 @@ describe('FavoritesPage', () => {
     expect(within(listItems[1]).getByText('Affenpinscher')).toBeInTheDocument();
   });
 
-  it('shows loading state while favourites are refetching', () => {
+  it('shows inline syncing state while favourites are refetching', () => {
     mockBreedsQuery();
     mockHistoryStore();
 
@@ -183,7 +195,8 @@ describe('FavoritesPage', () => {
       isFetching: true,
       isError: false,
       error: null,
-    } as ReturnType<typeof useDogFavouritesQuery>);
+      refetch: favouritesRefetchSpy,
+    } as unknown as ReturnType<typeof useDogFavouritesQuery>);
 
     render(
       <MemoryRouter>
@@ -191,8 +204,9 @@ describe('FavoritesPage', () => {
       </MemoryRouter>,
     );
 
-    expect(screen.getByText('Loading favourites...')).toBeInTheDocument();
-    expect(screen.queryByText('Akita')).not.toBeInTheDocument();
+    expect(screen.getByText('Updating favorites')).toBeInTheDocument();
+    expect(screen.getByText('Refreshing your latest likes.')).toBeInTheDocument();
+    expect(screen.getByText('Akita')).toBeInTheDocument();
   });
 
   it('moves to next page when clicking next', async () => {
@@ -222,7 +236,8 @@ describe('FavoritesPage', () => {
           isFetching: false,
           isError: false,
           error: null,
-        } as ReturnType<typeof useDogFavouritesQuery>;
+          refetch: favouritesRefetchSpy,
+        } as unknown as ReturnType<typeof useDogFavouritesQuery>;
       }
 
       return {
@@ -246,7 +261,8 @@ describe('FavoritesPage', () => {
         isFetching: false,
         isError: false,
         error: null,
-      } as ReturnType<typeof useDogFavouritesQuery>;
+        refetch: favouritesRefetchSpy,
+      } as unknown as ReturnType<typeof useDogFavouritesQuery>;
     });
 
     const user = userEvent.setup();
@@ -301,7 +317,8 @@ describe('FavoritesPage', () => {
       isFetching: false,
       isError: false,
       error: null,
-    } as ReturnType<typeof useDogFavouritesQuery>);
+      refetch: favouritesRefetchSpy,
+    } as unknown as ReturnType<typeof useDogFavouritesQuery>);
 
     render(
       <MemoryRouter>
@@ -310,5 +327,36 @@ describe('FavoritesPage', () => {
     );
 
     expect(screen.getByText('Super Like')).toBeInTheDocument();
+  });
+
+  it('shows retry action when favourites fail to load', async () => {
+    const user = userEvent.setup();
+
+    mockBreedsQuery();
+    mockHistoryStore();
+
+    vi.mocked(useDogFavouritesQuery).mockReturnValue({
+      data: undefined,
+      isLoading: false,
+      isFetching: false,
+      isError: true,
+      error: new Error('Temporary outage'),
+      refetch: favouritesRefetchSpy,
+    } as unknown as ReturnType<typeof useDogFavouritesQuery>);
+
+    render(
+      <MemoryRouter>
+        <FavoritesPage />
+      </MemoryRouter>,
+    );
+
+    expect(screen.getByText('Unable to load favorites')).toBeInTheDocument();
+    expect(screen.getByText('We could not load your favourites right now.')).toBeInTheDocument();
+    expect(screen.getByText('Temporary outage')).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'Try again' }));
+
+    expect(breedsRefetchSpy).toHaveBeenCalled();
+    expect(favouritesRefetchSpy).toHaveBeenCalled();
   });
 });

@@ -13,6 +13,7 @@ const voteMutateSpy = vi.fn();
 const favouriteMutateSpy = vi.fn();
 const setCurrentIndexSpy = vi.fn();
 const showSwipeFeedbackSpy = vi.fn();
+const breedsRefetchSpy = vi.fn();
 
 vi.mock('react-router-dom', async () => {
   const actual = await vi.importActual('react-router-dom');
@@ -68,6 +69,7 @@ describe('DogDetailsPage', () => {
     favouriteMutateSpy.mockReset();
     setCurrentIndexSpy.mockReset();
     showSwipeFeedbackSpy.mockReset();
+    breedsRefetchSpy.mockReset();
 
     const reactRouterDom = await import('react-router-dom');
 
@@ -130,9 +132,11 @@ describe('DogDetailsPage', () => {
         },
       ],
       isLoading: false,
+      isFetching: false,
       isError: false,
       error: null,
-    } as ReturnType<typeof useDogBreedsQuery>);
+      refetch: breedsRefetchSpy,
+    } as unknown as ReturnType<typeof useDogBreedsQuery>);
 
     render(<DogDetailsPage />);
 
@@ -163,9 +167,11 @@ describe('DogDetailsPage', () => {
         },
       ],
       isLoading: false,
+      isFetching: false,
       isError: false,
       error: null,
-    } as ReturnType<typeof useDogBreedsQuery>);
+      refetch: breedsRefetchSpy,
+    } as unknown as ReturnType<typeof useDogBreedsQuery>);
 
     render(<DogDetailsPage />);
 
@@ -175,6 +181,58 @@ describe('DogDetailsPage', () => {
     expect(favouriteMutateSpy).not.toHaveBeenCalled();
     expect(setCurrentIndexSpy).not.toHaveBeenCalled();
     expect(showSwipeFeedbackSpy).toHaveBeenCalledWith(1);
+    expect(navigateSpy).toHaveBeenCalledWith('/');
+  });
+
+  it('shows retryable error state when breed query fails', async () => {
+    const user = userEvent.setup();
+
+    vi.mocked(useDogBreedsQuery).mockReturnValue({
+      data: [],
+      isLoading: false,
+      isFetching: false,
+      isError: true,
+      error: new Error('Service unavailable'),
+      refetch: breedsRefetchSpy,
+    } as unknown as ReturnType<typeof useDogBreedsQuery>);
+
+    render(<DogDetailsPage />);
+
+    expect(screen.getByText('Unable to load breed details')).toBeInTheDocument();
+    expect(screen.getByText('Breed details are unavailable right now.')).toBeInTheDocument();
+    expect(screen.getByText('Service unavailable')).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'Try again' }));
+
+    expect(breedsRefetchSpy).toHaveBeenCalled();
+  });
+
+  it('sends users back to deck when dog id is invalid', async () => {
+    const user = userEvent.setup();
+    const reactRouterDom = await import('react-router-dom');
+
+    vi.mocked(reactRouterDom.useLoaderData).mockReturnValue({
+      dogId: 0,
+    } as ReturnType<typeof reactRouterDom.useLoaderData>);
+    vi.mocked(reactRouterDom.useParams).mockReturnValue({
+      dogId: '0',
+    } as ReturnType<typeof reactRouterDom.useParams>);
+
+    vi.mocked(useDogBreedsQuery).mockReturnValue({
+      data: [],
+      isLoading: false,
+      isFetching: false,
+      isError: false,
+      error: null,
+      refetch: breedsRefetchSpy,
+    } as unknown as ReturnType<typeof useDogBreedsQuery>);
+
+    render(<DogDetailsPage />);
+
+    expect(screen.getByText('Invalid breed link')).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'Back to deck' }));
+
     expect(navigateSpy).toHaveBeenCalledWith('/');
   });
 });

@@ -44,11 +44,13 @@ function renderHomePage() {
 describe('HomePage', () => {
   const voteMutateSpy = vi.fn();
   const favouriteMutateSpy = vi.fn();
+  const breedsRefetchSpy = vi.fn();
 
   beforeEach(() => {
     window.localStorage.clear();
     voteMutateSpy.mockReset();
     favouriteMutateSpy.mockReset();
+    breedsRefetchSpy.mockReset();
 
     useSwipeStore.setState({
       currentIndex: 0,
@@ -71,9 +73,11 @@ describe('HomePage', () => {
         },
       ],
       isLoading: false,
+      isFetching: false,
       isError: false,
       error: null,
-    } as ReturnType<typeof useDogBreedsQuery>);
+      refetch: breedsRefetchSpy,
+    } as unknown as ReturnType<typeof useDogBreedsQuery>);
 
     vi.mocked(useVoteDogMutation).mockReturnValue({
       mutate: voteMutateSpy,
@@ -112,5 +116,28 @@ describe('HomePage', () => {
       expect(voteMutateSpy).toHaveBeenCalledWith({ imageId: 'img-1', value: -1 });
       expect(favouriteMutateSpy).not.toHaveBeenCalled();
     });
+  });
+
+  it('shows actionable error state and retries breeds query', async () => {
+    const user = userEvent.setup();
+
+    vi.mocked(useDogBreedsQuery).mockReturnValue({
+      data: [],
+      isLoading: false,
+      isFetching: false,
+      isError: true,
+      error: new Error('Network issue'),
+      refetch: breedsRefetchSpy,
+    } as unknown as ReturnType<typeof useDogBreedsQuery>);
+
+    renderHomePage();
+
+    expect(screen.getByText('Unable to load dogs')).toBeInTheDocument();
+    expect(screen.getByText('We could not load the dog deck.')).toBeInTheDocument();
+    expect(screen.getByText('Network issue')).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'Try again' }));
+
+    expect(breedsRefetchSpy).toHaveBeenCalled();
   });
 });

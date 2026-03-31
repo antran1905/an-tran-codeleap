@@ -4,6 +4,7 @@ import { DogCardStackSkeleton } from '@/components/organisms/DogCardStackSkeleto
 import { DogDetailsPanel } from '@/components/organisms/DogDetailsPanel';
 import { SwipeActionBarSkeleton } from '@/components/molecules/SwipeActionBarSkeleton';
 import { ErrorState } from '@/components/atoms/ErrorState';
+import { LoadingState } from '@/components/atoms/LoadingState';
 import { useCreateDogFavouriteMutation } from '@/hooks/useCreateDogFavouriteMutation';
 import type { DogDetailsLoaderData } from '@/routes/loaders/dog-details.loader';
 import { useDogBreedsQuery } from '@/hooks/useDogBreedsQuery';
@@ -11,6 +12,7 @@ import { useVoteDogMutation } from '@/hooks/useVoteDogMutation';
 import type { VoteValue } from '@/interfaces/vote.interface';
 import { useSwipeStore } from '@/stores/useSwipeStore';
 import { isBreedSwipeable } from '@/utils/dog-card';
+import { toQueryErrorMessage } from '@/utils/errorMessage';
 
 export function DogDetailsPage() {
   const navigate = useNavigate();
@@ -29,6 +31,11 @@ export function DogDetailsPage() {
         <div className="min-h-0 flex-1">
           <DogCardStackSkeleton />
         </div>
+        <LoadingState
+          compact
+          title="Loading breed details"
+          message="Fetching this dog's profile and stats."
+        />
         <div className="px-3 pt-1 pb-[calc(env(safe-area-inset-bottom)+0.5rem)] sm:px-0 sm:py-0">
           <SwipeActionBarSkeleton />
         </div>
@@ -37,17 +44,69 @@ export function DogDetailsPage() {
   }
 
   if (dogBreedsQuery.isError) {
-    return <ErrorState message="Unable to load breed details." />;
+    const errorContent = toQueryErrorMessage({
+      error: dogBreedsQuery.error,
+      fallbackMessage: 'Breed details are unavailable right now.',
+    });
+
+    return (
+      <ErrorState
+        title="Unable to load breed details"
+        message={errorContent.message}
+        details={errorContent.details}
+        action={(
+          <button
+            type="button"
+            className="rounded-full border border-border bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground"
+            onClick={() => {
+              void dogBreedsQuery.refetch();
+            }}
+          >
+            Try again
+          </button>
+        )}
+      />
+    );
   }
 
   if (!Number.isInteger(dogId) || dogId <= 0) {
-    return <ErrorState message="Invalid breed id." />;
+    return (
+      <ErrorState
+        title="Invalid breed link"
+        message="This dog id is not valid."
+        details="Please open a dog profile from the main deck."
+        action={(
+          <button
+            type="button"
+            className="rounded-full border border-border bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground"
+            onClick={() => navigate('/')}
+          >
+            Back to deck
+          </button>
+        )}
+      />
+    );
   }
 
   const breed = dogBreedsQuery.data?.find((item) => Number(item.id) === dogId);
 
   if (!breed) {
-    return <ErrorState message="Breed not found." />;
+    return (
+      <ErrorState
+        title="Breed not found"
+        message="This profile is not available in the current deck."
+        details="Try another dog from the home page."
+        action={(
+          <button
+            type="button"
+            className="rounded-full border border-border bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground"
+            onClick={() => navigate('/')}
+          >
+            Back to deck
+          </button>
+        )}
+      />
+    );
   }
 
   const selectedBreed = breed;

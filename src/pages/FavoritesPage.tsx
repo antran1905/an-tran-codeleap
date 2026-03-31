@@ -12,6 +12,7 @@ import type { DogFavorite } from '@/interfaces/favorite.interface';
 import type { SwipeHistoryEntry } from '@/interfaces/swipe-history.interface';
 import type { VoteValue } from '@/interfaces/vote.interface';
 import { useHistoryStore } from '@/stores/useHistoryStore';
+import { toQueryErrorMessage } from '@/utils/errorMessage';
 
 /**
  * Favourite payloads sometimes embed breed data on `image.breeds[0]`; otherwise match the parent
@@ -127,23 +128,46 @@ export function FavoritesPage() {
     hydrateHistory();
   }, [hydrateHistory]);
 
-  if (
-    dogBreedsQuery.isLoading ||
-    dogBreedsQuery.isFetching ||
-    dogFavouritesQuery.isLoading ||
-    dogFavouritesQuery.isFetching
-  ) {
+  const isInitialLoading = dogBreedsQuery.isLoading || dogFavouritesQuery.isLoading;
+  const isBackgroundSyncing = !isInitialLoading && (dogBreedsQuery.isFetching || dogFavouritesQuery.isFetching);
+
+  if (isInitialLoading) {
     return (
       <ListPageTemplate title="Favorites" subtitle="Dogs saved to your favourites list.">
-        <LoadingState message="Loading favourites..." />
+        <LoadingState
+          title="Loading favorites"
+          message="Gathering your saved dogs."
+          hint="This may take a few seconds."
+        />
       </ListPageTemplate>
     );
   }
 
   if (dogBreedsQuery.isError || dogFavouritesQuery.isError) {
+    const errorContent = toQueryErrorMessage({
+      error: dogFavouritesQuery.error ?? dogBreedsQuery.error,
+      fallbackMessage: 'We could not load your favourites right now.',
+    });
+
     return (
       <ListPageTemplate title="Favorites" subtitle="Dogs saved to your favourites list.">
-        <ErrorState message="Unable to load favourites right now." />
+        <ErrorState
+          title="Unable to load favorites"
+          message={errorContent.message}
+          details={errorContent.details}
+          action={(
+            <button
+              type="button"
+              className="rounded-full border border-border bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground"
+              onClick={() => {
+                void dogBreedsQuery.refetch();
+                void dogFavouritesQuery.refetch();
+              }}
+            >
+              Try again
+            </button>
+          )}
+        />
       </ListPageTemplate>
     );
   }
@@ -165,6 +189,13 @@ export function FavoritesPage() {
       title="Favorites"
       subtitle={`Dogs saved to your favourites list (${totalCount}).`}
     >
+      {isBackgroundSyncing ? (
+        <LoadingState
+          compact
+          title="Updating favorites"
+          message="Refreshing your latest likes."
+        />
+      ) : null}
       <InteractionHistoryList entries={sortedFavouriteEntries} emptyMessage="No favourites saved yet." />
       <PaginationControls
         currentPage={currentPageOneBased}

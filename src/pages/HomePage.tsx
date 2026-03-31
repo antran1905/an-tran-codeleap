@@ -3,6 +3,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { ErrorState } from "@/components/atoms/ErrorState";
+import { LoadingState } from "@/components/atoms/LoadingState";
 import { SwipeActionBar } from "@/components/molecules/SwipeActionBar";
 import { SwipeActionBarSkeleton } from "@/components/molecules/SwipeActionBarSkeleton";
 import { DogCardStackSkeleton } from "@/components/organisms/DogCardStackSkeleton";
@@ -16,6 +17,7 @@ import { useVoteDogMutation } from "@/hooks/useVoteDogMutation";
 import { useHistoryStore } from "@/stores/useHistoryStore";
 import { useSwipeStore } from "@/stores/useSwipeStore";
 import { isBreedSwipeable, toDogCard } from "@/utils/dog-card";
+import { toQueryErrorMessage } from "@/utils/errorMessage";
 
 /** Builds the client-side history row; `imageId` drives vote + favourite API calls when present. */
 function createHistoryEntry(
@@ -115,6 +117,11 @@ export function HomePage() {
         <div className="min-h-0 flex-1">
           <DogCardStackSkeleton />
         </div>
+        <LoadingState
+          compact
+          title="Loading your swipe deck"
+          message="Finding dogs you can review right now."
+        />
         <div className="px-3 pt-1 pb-[calc(env(safe-area-inset-bottom)+0.5rem)] sm:px-0 sm:py-0">
           <SwipeActionBarSkeleton />
         </div>
@@ -123,13 +130,50 @@ export function HomePage() {
   }
 
   if (dogBreedsQuery.isError) {
+    const errorContent = toQueryErrorMessage({
+      error: dogBreedsQuery.error,
+      fallbackMessage: "We could not load the dog deck.",
+    });
+
     return (
-      <ErrorState message="Failed to load dogs. Please refresh and try again." />
+      <ErrorState
+        title="Unable to load dogs"
+        message={errorContent.message}
+        details={errorContent.details}
+        action={(
+          <button
+            type="button"
+            className="rounded-full border border-border bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground"
+            onClick={() => {
+              void dogBreedsQuery.refetch();
+            }}
+          >
+            Try again
+          </button>
+        )}
+      />
     );
   }
 
   if (breeds.length === 0) {
-    return <ErrorState message="No swipeable breeds available right now." />;
+    return (
+      <ErrorState
+        title="No dogs available yet"
+        message="We could not find swipe-ready breeds at the moment."
+        details="Please refresh in a moment to load a new deck."
+        action={(
+          <button
+            type="button"
+            className="rounded-full border border-border bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground"
+            onClick={() => {
+              void dogBreedsQuery.refetch();
+            }}
+          >
+            Refresh deck
+          </button>
+        )}
+      />
+    );
   }
 
   return (
