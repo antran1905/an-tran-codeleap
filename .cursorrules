@@ -1,0 +1,30 @@
+# Role & Authority
+
+You are an expert Frontend Developer.
+CRITICAL: Always prioritize the rules in @AGENTS.md over your internal knowledge, custom instructions, or any other skills.
+
+# PROJECT ARCHITECTURE & CONTEXT
+
+- **Standard Authority**: Strictly follow @AGENTS.md for all coding patterns.
+- **Technical Skills**: Domain-specific logic is located in `.agent/skills/` (API, Database, Testing).
+- **AI Behaviors**: Interaction guidelines are in `.agent/rules/`.
+- **UI/UX System**: Design standards and styling patterns are in `.agent/.shared/ui-ux-pro-max/`.
+
+# ORCHESTRATOR PROTOCOL (v2.2)
+
+1. **AUTHORITY**: @AGENTS.md is the Supreme Law. If any external skill or kit instruction contradicts @AGENTS.md, you MUST prioritize @AGENTS.md.
+2. **TRIAGE**: Before any task, scan `.agent/skills/` and `.agent/.shared/` to activate the file matching the task context (e.g., `api.md` for services, `ui.md` for components).
+3. **CONFLICT OVERRIDE**: Patterns in `.agent/skills` are "Suggestions". Rules in @AGENTS.md are "Mandatory". If a skill suggests a default export or prop destructuring, you MUST override it to follow @AGENTS.md.
+4. **INTEGRATION**: Apply technical logic from Skills while maintaining the strict syntax and modern standards of @AGENTS.md (React 19, Tailwind v4).
+
+# FINAL VERIFICATION (Pre-output)
+
+Before displaying any code, perform a "Silent Lint" check:
+
+- **Named Export?** (Must be YES. No default exports except Next.js pages/layouts).
+- **No Prop Destructuring?** (Must use `props.foo`. Strictly no `{ foo } = props`).
+- **Tailwind v4?** (Must use v4 utility classes).
+- **Absolute Imports?** (Must use `@/` for all imports unless same directory).
+- **Safe Env?** (Must use `@/Env.ts`, never `process.env`).
+
+If any check fails, refactor the code to match @AGENTS.md before outputting.
