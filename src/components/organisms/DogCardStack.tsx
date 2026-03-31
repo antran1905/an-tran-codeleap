@@ -25,7 +25,9 @@ interface DragState {
 }
 
 const swipeThreshold = 110;
-const throwDurationMs = 320;
+/** Card fly-out after a button swipe or drag release; keep in sync with CSS transition below. */
+const throwDurationMs = 900;
+const throwTransition = `transform ${throwDurationMs}ms cubic-bezier(0.16, 1, 0.3, 1), opacity ${throwDurationMs}ms cubic-bezier(0.16, 1, 0.3, 1), filter ${throwDurationMs}ms ease-out`;
 
 /** Maps drag distance to 0..1 for peek-card scale, opacity, and badge strength. */
 function getMotionIntensity(x: number, y: number): number {
@@ -88,8 +90,7 @@ export function DogCardStack(props: Props) {
       x: outX,
       y: outY,
       isThrowing: true,
-      transition:
-        "transform 320ms cubic-bezier(0.16, 1, 0.3, 1), opacity 320ms cubic-bezier(0.16, 1, 0.3, 1), filter 320ms ease-out",
+      transition: throwTransition,
     });
 
     // Outer timeout matches the throw animation; inner `setTimeout(0)` defers `onSwipe` until after
@@ -224,8 +225,7 @@ export function DogCardStack(props: Props) {
         x: outX,
         y: outY,
         isThrowing: true,
-        transition:
-          "transform 320ms cubic-bezier(0.16, 1, 0.3, 1), opacity 320ms cubic-bezier(0.16, 1, 0.3, 1), filter 320ms ease-out",
+        transition: throwTransition,
       });
 
       settleTimer = window.setTimeout(() => {

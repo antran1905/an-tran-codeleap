@@ -19,7 +19,7 @@ const topNavItems: TopNavItem[] = [
 export function TopNav() {
   return (
     <nav className="sticky top-0 z-20 border-b border-border/70 bg-background/95 backdrop-blur">
-      <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
+      <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-2">
         <Link
           to="/"
           className="focus-visible:ring-ring shrink-0 rounded-md ring-offset-background transition-opacity outline-none hover:opacity-90 focus-visible:ring-2 focus-visible:ring-offset-2"
