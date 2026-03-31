@@ -6,6 +6,7 @@ import { describe, expect, it, vi } from 'vitest';
 import { useDogBreedsQuery } from '@/hooks/useDogBreedsQuery';
 import { useDogFavouritesQuery } from '@/hooks/useDogFavouritesQuery';
 import { FavoritesPage } from '@/pages/FavoritesPage';
+import { useHistoryStore } from '@/stores/useHistoryStore';
 
 vi.mock('@/hooks/useDogBreedsQuery', () => {
   return {
@@ -19,7 +20,36 @@ vi.mock('@/hooks/useDogFavouritesQuery', () => {
   };
 });
 
+vi.mock('@/stores/useHistoryStore', () => {
+  return {
+    useHistoryStore: vi.fn(),
+  };
+});
+
 describe('FavoritesPage', () => {
+  function mockHistoryStore(options?: {
+    entries?: Array<{
+      id: string;
+      breedId: number;
+      breedName: string;
+      imageUrl: string | null;
+      imageId: string | null;
+      value: 1 | -1 | 2;
+      createdAt: string;
+    }>;
+  }) {
+    vi.mocked(useHistoryStore).mockImplementation((selector) => {
+      return selector({
+        entries: options?.entries ?? [],
+        filter: 'all',
+        hydrateHistory: vi.fn(),
+        setFilter: vi.fn(),
+        appendEntry: vi.fn(),
+        removeLastEntry: vi.fn(),
+      } as Parameters<typeof selector>[0]);
+    });
+  }
+
   function mockBreedsQuery() {
     vi.mocked(useDogBreedsQuery).mockReturnValue({
       data: [
@@ -46,6 +76,7 @@ describe('FavoritesPage', () => {
 
   it('shows favourites from API data', () => {
     mockBreedsQuery();
+    mockHistoryStore();
 
     vi.mocked(useDogFavouritesQuery).mockReturnValue({
       data: {
@@ -82,6 +113,7 @@ describe('FavoritesPage', () => {
 
   it('sorts favourites by created_at descending', () => {
     mockBreedsQuery();
+    mockHistoryStore();
 
     vi.mocked(useDogFavouritesQuery).mockReturnValue({
       data: {
@@ -128,6 +160,7 @@ describe('FavoritesPage', () => {
 
   it('shows loading state while favourites are refetching', () => {
     mockBreedsQuery();
+    mockHistoryStore();
 
     vi.mocked(useDogFavouritesQuery).mockReturnValue({
       data: {
@@ -164,6 +197,7 @@ describe('FavoritesPage', () => {
 
   it('moves to next page when clicking next', async () => {
     mockBreedsQuery();
+    mockHistoryStore();
 
     vi.mocked(useDogFavouritesQuery).mockImplementation((options) => {
       if (options.page === 1) {
@@ -228,5 +262,53 @@ describe('FavoritesPage', () => {
     await user.click(screen.getByRole('button', { name: 'Next' }));
 
     expect(screen.getByText('Akita')).toBeInTheDocument();
+  });
+
+  it('shows super like when matching history entry was super liked', () => {
+    mockBreedsQuery();
+    mockHistoryStore({
+      entries: [
+        {
+          id: 'history-1',
+          breedId: 2,
+          breedName: 'Akita',
+          imageUrl: 'https://example.com/akita.jpg',
+          imageId: 'image-2',
+          value: 2,
+          createdAt: '2025-01-02T09:00:00.000Z',
+        },
+      ],
+    });
+
+    vi.mocked(useDogFavouritesQuery).mockReturnValue({
+      data: {
+        items: [
+          {
+            id: 200,
+            image_id: 'image-2',
+            created_at: '2025-01-02T10:00:00.000Z',
+            image: {
+              id: 'image-2',
+              url: 'https://example.com/akita.jpg',
+            },
+          },
+        ],
+        page: 0,
+        limit: 10,
+        totalCount: 1,
+      },
+      isLoading: false,
+      isFetching: false,
+      isError: false,
+      error: null,
+    } as ReturnType<typeof useDogFavouritesQuery>);
+
+    render(
+      <MemoryRouter>
+        <FavoritesPage />
+      </MemoryRouter>,
+    );
+
+    expect(screen.getByText('Super Like')).toBeInTheDocument();
   });
 });

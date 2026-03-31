@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { ErrorState } from '@/components/atoms/ErrorState';
 import { LoadingState } from '@/components/atoms/LoadingState';
@@ -10,6 +10,8 @@ import { useDogFavouritesQuery } from '@/hooks/useDogFavouritesQuery';
 import type { DogBreed } from '@/interfaces/dog-breed.interface';
 import type { DogFavorite } from '@/interfaces/favorite.interface';
 import type { SwipeHistoryEntry } from '@/interfaces/swipe-history.interface';
+import type { VoteValue } from '@/interfaces/vote.interface';
+import { useHistoryStore } from '@/stores/useHistoryStore';
 
 function findBreedForFavourite(options: { favourite: DogFavorite; breeds: DogBreed[] }): DogBreed | undefined {
   const favouriteBreed = options.favourite.image?.breeds?.[0];
@@ -30,23 +32,55 @@ function findBreedForFavourite(options: { favourite: DogFavorite; breeds: DogBre
 function mapFavouritesToHistoryEntries(options: {
   favourites: DogFavorite[];
   breeds: DogBreed[];
+  historyEntries: SwipeHistoryEntry[];
 }): SwipeHistoryEntry[] {
   return options.favourites.map((favourite) => {
     const matchedBreed = findBreedForFavourite({
       favourite,
       breeds: options.breeds,
     });
+    const imageId = favourite.image_id ?? favourite.image?.id ?? null;
 
     return {
       id: `favourite-${favourite.id}`,
       breedId: matchedBreed?.id ?? 0,
       breedName: matchedBreed?.name ?? `Favourite #${favourite.id}`,
       imageUrl: favourite.image?.url ?? null,
-      imageId: favourite.image_id ?? favourite.image?.id ?? null,
-      value: 1,
+      imageId,
+      value: resolveFavouriteValue({
+        imageId,
+        historyEntries: options.historyEntries,
+      }),
       createdAt: favourite.created_at ?? new Date().toISOString(),
     };
   });
+}
+
+function resolveFavouriteValue(options: {
+  imageId: string | null;
+  historyEntries: SwipeHistoryEntry[];
+}): VoteValue {
+  if (!options.imageId) {
+    return 1;
+  }
+
+  const matchedEntry = options.historyEntries.find((entry) => {
+    if (!entry.imageId) {
+      return false;
+    }
+
+    if (entry.imageId !== options.imageId) {
+      return false;
+    }
+
+    return entry.value === 1 || entry.value === 2;
+  });
+
+  if (!matchedEntry) {
+    return 1;
+  }
+
+  return matchedEntry.value;
 }
 
 function toCreatedAtTimestamp(value: string): number {
@@ -72,12 +106,18 @@ const favouritesOrder = 'DESC' as const;
 
 export function FavoritesPage() {
   const [currentPage, setCurrentPage] = useState(0);
+  const historyEntries = useHistoryStore((state) => state.entries);
+  const hydrateHistory = useHistoryStore((state) => state.hydrateHistory);
   const dogBreedsQuery = useDogBreedsQuery();
   const dogFavouritesQuery = useDogFavouritesQuery({
     page: currentPage,
     limit: favouritesPageSize,
     order: favouritesOrder,
   });
+
+  useEffect(() => {
+    hydrateHistory();
+  }, [hydrateHistory]);
 
   if (
     dogBreedsQuery.isLoading ||
@@ -103,6 +143,7 @@ export function FavoritesPage() {
   const favouriteEntries = mapFavouritesToHistoryEntries({
     favourites: dogFavouritesQuery.data?.items ?? [],
     breeds: dogBreedsQuery.data ?? [],
+    historyEntries,
   });
   const sortedFavouriteEntries = sortEntriesByCreatedAt({
     entries: favouriteEntries,
