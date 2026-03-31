@@ -1,7 +1,7 @@
 # init and setup project
 
 ## Summary
-- Build DogFinder as a React SPA with Tinder-like swipe behavior for dog breeds.
+- Build DogFinder as a React SPA with swipe behavior for dog breeds.
 - Use `pnpm` for install/run scripts.
 - Use environment validation in `@/Env.ts`.
 - Use single active API key via `VITE_DOG_API_KEY`.
@@ -23,7 +23,7 @@
 - Atomic Design layers in `src/components`:
   - Atoms: `IconButton`, `VoteChip`, `StatRow`, `PageHeading`, `LoadingState`, `ErrorState`
   - Molecules: `SwipeActionBar`, `BreedMetaPanel`, `HistoryFilterTabs`, `TopNav`
-  - Organisms: `TinderDogCardStack`, `DogDetailsPanel`, `InteractionHistoryList`
+  - Organisms: `DogCardStack`, `DogDetailsPanel`, `InteractionHistoryList`
   - Templates: `CenteredAppShellTemplate`, `ListPageTemplate`
 - API strategy:
   - Shared axios instance in `@/services/http.api.ts`
