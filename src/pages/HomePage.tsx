@@ -42,6 +42,7 @@ export function HomePage() {
   const hydrateIndex = useSwipeStore((state) => state.hydrateIndex);
   const advance = useSwipeStore((state) => state.advance);
   const setCurrentIndex = useSwipeStore((state) => state.setCurrentIndex);
+  const showSwipeFeedback = useSwipeStore((state) => state.showSwipeFeedback);
 
   const hydrateHistory = useHistoryStore((state) => state.hydrateHistory);
   const appendEntry = useHistoryStore((state) => state.appendEntry);
@@ -86,6 +87,7 @@ export function HomePage() {
       }
     }
 
+    showSwipeFeedback(value);
     advance(breeds.length);
   }
 

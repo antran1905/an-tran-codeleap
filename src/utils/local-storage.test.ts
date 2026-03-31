@@ -27,18 +27,17 @@ describe('local-storage utils', () => {
   });
 
   it('sets storage item when available', () => {
-    setStorageItem('progress', '4');
+    const result = setStorageItem('progress', '4');
 
+    expect(result).toBe(true);
     expect(window.localStorage.getItem('progress')).toBe('4');
   });
 
-  it('does not throw when localStorage setItem throws', () => {
+  it('returns false when localStorage setItem throws', () => {
     vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
       throw new Error('storage unavailable');
     });
 
-    expect(() => {
-      setStorageItem('progress', '4');
-    }).not.toThrow();
+    expect(setStorageItem('progress', '4')).toBe(false);
   });
 });

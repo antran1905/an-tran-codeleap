@@ -256,9 +256,9 @@ export function DogCardStack(props: Props) {
   const nextCardTranslateY = 18 - motionIntensity * 18;
   const currentOpacity = dragState.isThrowing ? 0 : 1 - motionIntensity * 0.28;
   const currentSaturation = 1 + motionIntensity * 0.25;
-  const showLove = dragState.x > 30;
+  const showLike = dragState.x > 30;
   const showDislike = dragState.x < -30;
-  const showStar =
+  const showSuper =
     dragState.y < -40 && Math.abs(dragState.y) > Math.abs(dragState.x);
   const badgeOpacity = 0.22 + motionIntensity * 0.78;
 
@@ -323,23 +323,23 @@ export function DogCardStack(props: Props) {
             className="absolute top-9 right-2 rotate-[20deg] rounded-2xl border-[3px] border-destructive bg-background/75 px-6 py-3 text-lg font-black tracking-[0.24em] text-destructive uppercase shadow-2xl shadow-destructive/35 backdrop-blur-sm sm:top-10 sm:right-4"
             style={{ opacity: badgeOpacity }}
           >
-            Nope
+            NOPE
           </span>
         ) : null}
-        {showLove ? (
+        {showLike ? (
           <span
-            className="absolute top-9 left-2 rotate-[-20deg] rounded-2xl border-[3px] border-secondary bg-background/75 px-6 py-3 text-lg font-black tracking-[0.24em] text-secondary uppercase shadow-2xl shadow-secondary/35 backdrop-blur-sm sm:top-10 sm:left-4"
+            className="absolute top-9 left-2 rotate-[-20deg] rounded-2xl border-[3px] border-success bg-success/85 px-6 py-3 text-lg font-black tracking-[0.24em] text-success-foreground uppercase shadow-2xl shadow-success/35 backdrop-blur-sm sm:top-10 sm:left-4"
             style={{ opacity: badgeOpacity }}
           >
-            Love
+            LIKE
           </span>
         ) : null}
-        {showStar ? (
+        {showSuper ? (
           <span
-            className="absolute top-5 left-1/2 -translate-x-1/2 rounded-lg border border-primary bg-background/55 px-3 py-1.5 text-sm font-bold tracking-wider text-primary uppercase backdrop-blur-sm"
+            className="absolute top-5 left-1/2 -translate-x-1/2 rounded-lg border border-primary bg-primary/90 px-3 py-1.5 text-sm font-bold tracking-wider text-primary-foreground uppercase shadow-xl shadow-primary/40 backdrop-blur-sm"
             style={{ opacity: badgeOpacity }}
           >
-            Star
+            SUPER
           </span>
         ) : null}
         {props.metadata ? (

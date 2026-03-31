@@ -6,7 +6,13 @@ import { useSwipeStore } from '@/stores/useSwipeStore';
 describe('useSwipeStore', () => {
   beforeEach(() => {
     window.localStorage.clear();
-    useSwipeStore.setState({ currentIndex: 0 });
+    useSwipeStore.setState({
+      currentIndex: 0,
+      progressSaveSignal: 0,
+      lastSavedIndex: 0,
+      swipeFeedbackSignal: 0,
+      lastSwipeFeedbackValue: null,
+    });
   });
 
   it('hydrates from localStorage progress', () => {
@@ -29,9 +35,40 @@ describe('useSwipeStore', () => {
   it('clamps setCurrentIndex between zero and maxLength', () => {
     useSwipeStore.getState().setCurrentIndex(-1, 5);
     expect(useSwipeStore.getState().currentIndex).toBe(0);
+    expect(useSwipeStore.getState().lastSavedIndex).toBe(0);
 
     useSwipeStore.getState().setCurrentIndex(10, 5);
     expect(useSwipeStore.getState().currentIndex).toBe(5);
+    expect(useSwipeStore.getState().lastSavedIndex).toBe(5);
+  });
+
+  it('increments save signal for user-driven progress updates', () => {
+    expect(useSwipeStore.getState().progressSaveSignal).toBe(0);
+
+    useSwipeStore.getState().setCurrentIndex(2, 10);
+    expect(useSwipeStore.getState().progressSaveSignal).toBe(1);
+
+    useSwipeStore.getState().advance(10);
+    expect(useSwipeStore.getState().progressSaveSignal).toBe(2);
+
+    useSwipeStore.getState().retreat();
+    expect(useSwipeStore.getState().progressSaveSignal).toBe(3);
+
+    useSwipeStore.getState().reset();
+    expect(useSwipeStore.getState().progressSaveSignal).toBe(4);
+  });
+
+  it('emits swipe feedback signal with the latest swipe value', () => {
+    expect(useSwipeStore.getState().swipeFeedbackSignal).toBe(0);
+    expect(useSwipeStore.getState().lastSwipeFeedbackValue).toBeNull();
+
+    useSwipeStore.getState().showSwipeFeedback(-1);
+    expect(useSwipeStore.getState().swipeFeedbackSignal).toBe(1);
+    expect(useSwipeStore.getState().lastSwipeFeedbackValue).toBe(-1);
+
+    useSwipeStore.getState().showSwipeFeedback(2);
+    expect(useSwipeStore.getState().swipeFeedbackSignal).toBe(2);
+    expect(useSwipeStore.getState().lastSwipeFeedbackValue).toBe(2);
   });
 
   it('advances and retreats index', () => {

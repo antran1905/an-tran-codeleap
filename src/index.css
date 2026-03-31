@@ -22,6 +22,9 @@
 
   --color-destructive: hsl(355 84% 58%);
   --color-destructive-foreground: hsl(0 0% 100%);
+
+  --color-success: hsl(142 67% 42%);
+  --color-success-foreground: hsl(0 0% 100%);
 }
 
 :root {
@@ -78,4 +81,26 @@ body {
 
 .details-row-enter {
   animation: details-row-enter 260ms ease-out both;
+}
+
+@keyframes progress-toast-sheen {
+  from {
+    transform: translateX(-130%);
+  }
+
+  to {
+    transform: translateX(130%);
+  }
+}
+
+@keyframes progress-toast-bar {
+  from {
+    transform: scaleX(1);
+    transform-origin: left;
+  }
+
+  to {
+    transform: scaleX(0);
+    transform-origin: left;
+  }
 }

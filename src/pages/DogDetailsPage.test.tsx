@@ -12,6 +12,7 @@ const navigateSpy = vi.fn();
 const voteMutateSpy = vi.fn();
 const favouriteMutateSpy = vi.fn();
 const setCurrentIndexSpy = vi.fn();
+const showSwipeFeedbackSpy = vi.fn();
 
 vi.mock('react-router-dom', async () => {
   const actual = await vi.importActual('react-router-dom');
@@ -66,6 +67,7 @@ describe('DogDetailsPage', () => {
     voteMutateSpy.mockReset();
     favouriteMutateSpy.mockReset();
     setCurrentIndexSpy.mockReset();
+    showSwipeFeedbackSpy.mockReset();
 
     const reactRouterDom = await import('react-router-dom');
 
@@ -79,11 +81,16 @@ describe('DogDetailsPage', () => {
     vi.mocked(useSwipeStore).mockImplementation((selector) => {
       return selector({
         currentIndex: 0,
+        progressSaveSignal: 0,
+        lastSavedIndex: 0,
+        swipeFeedbackSignal: 0,
+        lastSwipeFeedbackValue: null,
         setCurrentIndex: setCurrentIndexSpy,
         hydrateIndex: vi.fn(),
         advance: vi.fn(),
         retreat: vi.fn(),
         reset: vi.fn(),
+        showSwipeFeedback: showSwipeFeedbackSpy,
       } as Parameters<typeof selector>[0]);
     });
 
@@ -139,6 +146,7 @@ describe('DogDetailsPage', () => {
       imageId: 'img-2',
     });
     expect(setCurrentIndexSpy).toHaveBeenCalledWith(2, 2);
+    expect(showSwipeFeedbackSpy).toHaveBeenCalledWith(1);
     expect(navigateSpy).toHaveBeenCalledWith('/');
   });
 
@@ -166,6 +174,7 @@ describe('DogDetailsPage', () => {
     expect(voteMutateSpy).not.toHaveBeenCalled();
     expect(favouriteMutateSpy).not.toHaveBeenCalled();
     expect(setCurrentIndexSpy).not.toHaveBeenCalled();
+    expect(showSwipeFeedbackSpy).toHaveBeenCalledWith(1);
     expect(navigateSpy).toHaveBeenCalledWith('/');
   });
 });

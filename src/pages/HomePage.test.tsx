@@ -50,7 +50,13 @@ describe('HomePage', () => {
     voteMutateSpy.mockReset();
     favouriteMutateSpy.mockReset();
 
-    useSwipeStore.setState({ currentIndex: 0 });
+    useSwipeStore.setState({
+      currentIndex: 0,
+      progressSaveSignal: 0,
+      lastSavedIndex: 0,
+      swipeFeedbackSignal: 0,
+      lastSwipeFeedbackValue: null,
+    });
     useHistoryStore.setState({ entries: [], filter: 'all' });
 
     vi.mocked(useDogBreedsQuery).mockReturnValue({

@@ -20,6 +20,7 @@ export function DogDetailsPage() {
   const voteDogMutation = useVoteDogMutation();
   const createDogFavouriteMutation = useCreateDogFavouriteMutation();
   const setCurrentIndex = useSwipeStore((state) => state.setCurrentIndex);
+  const showSwipeFeedback = useSwipeStore((state) => state.showSwipeFeedback);
   const dogId = Number(loaderData?.dogId ?? params.dogId);
 
   if (dogBreedsQuery.isLoading) {
@@ -77,6 +78,7 @@ export function DogDetailsPage() {
       setCurrentIndex(selectedBreedIndex + 1, swipeableBreeds.length);
     }
 
+    showSwipeFeedback(value);
     navigate('/');
   }
 

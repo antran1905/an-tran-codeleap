@@ -1,8 +1,8 @@
-import { Heart, History, House } from 'lucide-react';
-import type * as React from 'react';
-import { Link, NavLink } from 'react-router-dom';
+import { Heart, History, House } from "lucide-react";
+import type * as React from "react";
+import { Link, NavLink } from "react-router-dom";
 
-import { cn } from '@/lib/utils';
+import { cn } from "@/lib/utils";
 
 interface TopNavItem {
   to: string;
@@ -11,9 +11,9 @@ interface TopNavItem {
 }
 
 const topNavItems: TopNavItem[] = [
-  { to: '/', label: 'Home', icon: <House size={18} /> },
-  { to: '/history', label: 'History', icon: <History size={18} /> },
-  { to: '/favorites', label: 'Favorites', icon: <Heart size={18} /> },
+  { to: "/", label: "Home", icon: <House size={18} /> },
+  { to: "/history", label: "History", icon: <History size={18} /> },
+  { to: "/favorites", label: "Favorites", icon: <Heart size={18} /> },
 ];
 
 export function TopNav() {
@@ -27,7 +27,7 @@ export function TopNav() {
           <img
             alt="DogFinder"
             className="h-12 max-h-16 w-auto max-w-[min(100%,22rem)] object-contain object-left sm:h-14"
-            src="/dog-finder-logo.png"
+            src="/dog-finder-logo.webp"
           />
         </Link>
         <ul className="flex items-center gap-2">
@@ -38,8 +38,9 @@ export function TopNav() {
                   to={item.to}
                   className={(navProps) => {
                     return cn(
-                      'inline-flex cursor-pointer items-center gap-2 rounded-full border border-transparent px-3 py-2 text-sm text-muted-foreground transition-all duration-200 hover:border-border hover:bg-card hover:text-foreground hover:shadow-lg hover:shadow-primary/25',
-                      navProps.isActive && 'border-border bg-card text-foreground shadow-lg shadow-primary/25',
+                      "inline-flex cursor-pointer items-center gap-2 rounded-full border border-transparent px-3 py-2 text-sm text-muted-foreground transition-all duration-200 hover:border-border hover:bg-card hover:text-foreground hover:shadow-lg hover:shadow-primary/25",
+                      navProps.isActive &&
+                        "border-border bg-card text-foreground shadow-lg shadow-primary/25",
                     );
                   }}
                 >
