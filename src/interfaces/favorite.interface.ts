@@ -13,6 +13,21 @@ export interface DogFavorite {
   image?: FavoriteImage;
 }
 
+export type FavouriteOrder = 'ASC' | 'DESC' | 'RANDOM';
+
+export interface GetDogFavouritesParams {
+  page: number;
+  limit: number;
+  order: FavouriteOrder;
+}
+
+export interface PaginatedDogFavourites {
+  items: DogFavorite[];
+  page: number;
+  limit: number;
+  totalCount: number;
+}
+
 export interface CreateDogFavouritePayload {
   imageId: string;
 }

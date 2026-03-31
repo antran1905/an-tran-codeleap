@@ -1,5 +1,8 @@
+import { useState } from 'react';
+
 import { ErrorState } from '@/components/atoms/ErrorState';
 import { LoadingState } from '@/components/atoms/LoadingState';
+import { PaginationControls } from '@/components/molecules/PaginationControls';
 import { InteractionHistoryList } from '@/components/organisms/InteractionHistoryList';
 import { ListPageTemplate } from '@/components/templates/ListPageTemplate';
 import { useDogBreedsQuery } from '@/hooks/useDogBreedsQuery';
@@ -46,11 +49,42 @@ function mapFavouritesToHistoryEntries(options: {
   });
 }
 
-export function FavoritesPage() {
-  const dogBreedsQuery = useDogBreedsQuery();
-  const dogFavouritesQuery = useDogFavouritesQuery();
+function toCreatedAtTimestamp(value: string): number {
+  const timestamp = Date.parse(value);
 
-  if (dogBreedsQuery.isLoading || dogFavouritesQuery.isLoading) {
+  if (Number.isNaN(timestamp)) {
+    return 0;
+  }
+
+  return timestamp;
+}
+
+function sortEntriesByCreatedAt(options: {
+  entries: SwipeHistoryEntry[];
+}): SwipeHistoryEntry[] {
+  return [...options.entries].sort((left, right) => {
+    return toCreatedAtTimestamp(right.createdAt) - toCreatedAtTimestamp(left.createdAt);
+  });
+}
+
+const favouritesPageSize = 10;
+const favouritesOrder = 'DESC' as const;
+
+export function FavoritesPage() {
+  const [currentPage, setCurrentPage] = useState(0);
+  const dogBreedsQuery = useDogBreedsQuery();
+  const dogFavouritesQuery = useDogFavouritesQuery({
+    page: currentPage,
+    limit: favouritesPageSize,
+    order: favouritesOrder,
+  });
+
+  if (
+    dogBreedsQuery.isLoading ||
+    dogBreedsQuery.isFetching ||
+    dogFavouritesQuery.isLoading ||
+    dogFavouritesQuery.isFetching
+  ) {
     return (
       <ListPageTemplate title="Favorites" subtitle="Dogs saved to your favourites list.">
         <LoadingState message="Loading favourites..." />
@@ -67,16 +101,31 @@ export function FavoritesPage() {
   }
 
   const favouriteEntries = mapFavouritesToHistoryEntries({
-    favourites: dogFavouritesQuery.data ?? [],
+    favourites: dogFavouritesQuery.data?.items ?? [],
     breeds: dogBreedsQuery.data ?? [],
   });
+  const sortedFavouriteEntries = sortEntriesByCreatedAt({
+    entries: favouriteEntries,
+  });
+  const totalCount = dogFavouritesQuery.data?.totalCount ?? 0;
+  const totalPages = Math.max(1, Math.ceil(totalCount / favouritesPageSize));
+  const currentPageOneBased = currentPage + 1;
 
   return (
     <ListPageTemplate
       title="Favorites"
-      subtitle="Dogs saved to your favourites list."
+      subtitle={`Dogs saved to your favourites list (${totalCount}).`}
     >
-      <InteractionHistoryList entries={favouriteEntries} emptyMessage="No favourites saved yet." />
+      <InteractionHistoryList entries={sortedFavouriteEntries} emptyMessage="No favourites saved yet." />
+      <PaginationControls
+        currentPage={currentPageOneBased}
+        totalPages={totalPages}
+        disabled={dogFavouritesQuery.isFetching}
+        onPageChange={(nextPage) => {
+          const clampedPage = Math.min(Math.max(nextPage, 1), totalPages);
+          setCurrentPage(clampedPage - 1);
+        }}
+      />
     </ListPageTemplate>
   );
 }
