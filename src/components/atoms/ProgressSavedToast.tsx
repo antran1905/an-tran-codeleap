@@ -46,7 +46,7 @@ export function ProgressSavedToast(props: ProgressSavedToastProps) {
   return (
     <div
       aria-live="polite"
-      className="pointer-events-none fixed top-20 right-3 z-50 flex justify-end sm:top-24 sm:right-6"
+      className="pointer-events-none fixed top-[calc(env(safe-area-inset-top)+3.75rem)] right-3 z-50 flex justify-end sm:top-[calc(env(safe-area-inset-top)+4.25rem)] sm:right-6"
     >
       <div
         data-testid="progress-saved-toast"

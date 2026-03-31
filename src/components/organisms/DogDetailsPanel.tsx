@@ -84,7 +84,7 @@ export function DogDetailsPanel(props: DogDetailsPanelProps) {
           onOpenDetails={() => undefined}
         />
       </div>
-      <div className="px-3 py-2 sm:px-0 sm:py-0">
+      <div className="px-3 pt-1 pb-[calc(env(safe-area-inset-bottom)+0.5rem)] sm:px-0 sm:py-0">
         <SwipeActionBar
           disabled={Boolean(queuedSwipeValue)}
           onReject={() => queueSwipe(-1)}

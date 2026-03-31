@@ -263,7 +263,7 @@ export function DogCardStack(props: Props) {
   const badgeOpacity = 0.22 + motionIntensity * 0.78;
 
   return (
-    <div className="relative h-full w-full touch-none overflow-hidden sm:mx-auto sm:h-[74svh] sm:max-h-[34rem] sm:min-h-[20rem] sm:max-w-md">
+    <div className="relative h-full max-h-[calc(100svh-10.5rem)] min-h-[20rem] w-full touch-none overflow-hidden sm:mx-auto sm:h-[74svh] sm:max-h-[34rem] sm:min-h-[20rem] sm:max-w-md">
       {props.nextCard ? (
         <article
           className="absolute inset-0 bg-muted shadow-lg sm:rounded-3xl sm:border sm:border-border"
@@ -320,7 +320,7 @@ export function DogCardStack(props: Props) {
         <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/20 to-background/15 sm:rounded-3xl" />
         {showDislike ? (
           <span
-            className="absolute top-9 right-2 rotate-[20deg] rounded-2xl border-[3px] border-destructive bg-background/75 px-6 py-3 text-lg font-black tracking-[0.24em] text-destructive uppercase shadow-2xl shadow-destructive/35 backdrop-blur-sm sm:top-10 sm:right-4"
+            className="absolute top-7 right-2 rotate-[20deg] rounded-2xl border-[3px] border-destructive bg-destructive/85 px-4 py-2 text-base font-black tracking-[0.2em] text-destructive-foreground uppercase shadow-2xl shadow-destructive/35 backdrop-blur-sm sm:top-10 sm:right-4 sm:px-6 sm:py-3 sm:text-lg sm:tracking-[0.24em]"
             style={{ opacity: badgeOpacity }}
           >
             NOPE
@@ -328,7 +328,7 @@ export function DogCardStack(props: Props) {
         ) : null}
         {showLike ? (
           <span
-            className="absolute top-9 left-2 rotate-[-20deg] rounded-2xl border-[3px] border-success bg-success/85 px-6 py-3 text-lg font-black tracking-[0.24em] text-success-foreground uppercase shadow-2xl shadow-success/35 backdrop-blur-sm sm:top-10 sm:left-4"
+            className="absolute top-7 left-2 rotate-[-20deg] rounded-2xl border-[3px] border-success bg-success/85 px-4 py-2 text-base font-black tracking-[0.2em] text-success-foreground uppercase shadow-2xl shadow-success/35 backdrop-blur-sm sm:top-10 sm:left-4 sm:px-6 sm:py-3 sm:text-lg sm:tracking-[0.24em]"
             style={{ opacity: badgeOpacity }}
           >
             LIKE
@@ -336,7 +336,7 @@ export function DogCardStack(props: Props) {
         ) : null}
         {showSuper ? (
           <span
-            className="absolute top-5 left-1/2 -translate-x-1/2 rounded-lg border border-primary bg-primary/90 px-3 py-1.5 text-sm font-bold tracking-wider text-primary-foreground uppercase shadow-xl shadow-primary/40 backdrop-blur-sm"
+            className="absolute top-4 left-1/2 -translate-x-1/2 rounded-lg border border-primary bg-primary/90 px-3 py-1.5 text-xs font-black tracking-[0.16em] text-primary-foreground uppercase shadow-xl shadow-primary/40 backdrop-blur-sm sm:top-5 sm:text-sm sm:tracking-wider"
             style={{ opacity: badgeOpacity }}
           >
             SUPER

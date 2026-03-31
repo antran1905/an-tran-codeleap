@@ -11,33 +11,33 @@ interface SwipeActionBarProps {
 
 export function SwipeActionBar(props: SwipeActionBarProps) {
   return (
-    <div className="flex items-center justify-center gap-6">
+    <div className="flex items-center justify-center gap-4 sm:gap-6">
       <IconButton
         label="Dislike"
         tone="danger"
-        className="h-[58px] w-[58px]"
+        className="h-[52px] w-[52px] sm:h-[58px] sm:w-[58px]"
         disabled={props.disabled}
         onClick={props.onReject}
       >
-        <X size={30} strokeWidth={4.5} />
+        <X size={28} strokeWidth={4.5} />
       </IconButton>
       <IconButton
         label="Star"
         tone="star"
-        className="h-[46px] w-[46px]"
+        className="h-[42px] w-[42px] sm:h-[46px] sm:w-[46px]"
         disabled={props.disabled}
         onClick={props.onSuperLike}
       >
-        <Star size={24} fill="currentColor" />
+        <Star size={22} fill="currentColor" />
       </IconButton>
       <IconButton
         label="Love"
         tone="love"
-        className="h-[58px] w-[58px]"
+        className="h-[52px] w-[52px] sm:h-[58px] sm:w-[58px]"
         disabled={props.disabled}
         onClick={props.onLike}
       >
-        <Heart size={30} fill="currentColor" />
+        <Heart size={28} fill="currentColor" />
       </IconButton>
     </div>
   );
